@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -28,11 +29,44 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.grupo_dvik_app_spv_seccion_003d.model.Registro
 import com.example.grupo_dvik_app_spv_seccion_003d.viewmodel.AdminViewModel
 import kotlinx.coroutines.delay
+
+private fun formatearFechaHora(texto: String): String {
+
+    val numeros = texto
+        .filter { it.isDigit() }
+        .take(12)
+
+    var resultado = ""
+
+    for (i in numeros.indices) {
+
+        resultado += numeros[i]
+
+        if (i == 1) {
+            resultado += "/"
+        }
+
+        if (i == 3) {
+            resultado += "/"
+        }
+
+        if (i == 7) {
+            resultado += " "
+        }
+
+        if (i == 9) {
+            resultado += ":"
+        }
+    }
+
+    return resultado
+}
 
 @Composable
 fun AdminScreen(
@@ -275,6 +309,9 @@ fun AdminScreen(
                         label = {
                             Text("ID Usuario")
                         },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number
+                        ),
                         singleLine = true
                     )
 
@@ -290,6 +327,9 @@ fun AdminScreen(
                         label = {
                             Text("ID Ámbito")
                         },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number
+                        ),
                         singleLine = true
                     )
 
@@ -300,11 +340,22 @@ fun AdminScreen(
                     OutlinedTextField(
                         value = fechaHora,
                         onValueChange = {
-                            fechaHora = it
+                            fechaHora = formatearFechaHora(it)
                         },
                         label = {
                             Text("Fecha y hora")
                         },
+                        placeholder = {
+                            Text("dd/MM/yyyy HH:mm")
+                        },
+                        supportingText = {
+                            Text(
+                                "Ingrese solo números. Ejemplo: 091020261430"
+                            )
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number
+                        ),
                         singleLine = true
                     )
 

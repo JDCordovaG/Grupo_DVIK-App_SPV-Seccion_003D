@@ -85,6 +85,12 @@ class AdminViewModel(
             return false
         }
 
+        if (!validaciones.validarFechaHora(fechaHora)) {
+            mensaje =
+                "La fecha y hora deben tener formato dd/MM/yyyy HH:mm"
+            return false
+        }
+
         if (!validaciones.validarCampo(estado)) {
             mensaje = "El estado es obligatorio"
             return false
