@@ -22,4 +22,15 @@ class Validaciones {
 
         return tieneMayuscula && tieneMinuscula
     }
+
+    fun validarCampo(campo: String): Boolean {
+        return campo.isNotBlank()
+    }
+
+    fun validarNumero(numero: String): Boolean {
+
+        val valor = numero.toIntOrNull()
+
+        return valor != null && valor > 0
+    }
 }
