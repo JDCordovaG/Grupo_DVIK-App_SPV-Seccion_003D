@@ -1,5 +1,6 @@
 package com.example.grupo_dvik_app_spv_seccion_003d.data.entity
 
+import androidx.room3.Entity
 import androidx.room3.PrimaryKey
 
 @Entity(tableName = "registros")
