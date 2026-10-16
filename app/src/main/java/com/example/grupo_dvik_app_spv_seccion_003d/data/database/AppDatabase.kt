@@ -1,8 +1,22 @@
 package com.example.grupo_dvik_app_spv_seccion_003d.data.database
 
+
+
+
+
+
+
+
+
+
+
+
+import android.content.Context
 import androidx.room3.Database
+import androidx.room3.Room
 import androidx.room3.RoomDatabase
 import com.example.grupo_dvik_app_spv_seccion_003d.data.dao.RegistroDao
+import com.example.grupo_dvik_app_spv_seccion_003d.data.entity.Registro
 
 
 @Database(entities = [Registro::class], version = 1, exportSchema = false)
