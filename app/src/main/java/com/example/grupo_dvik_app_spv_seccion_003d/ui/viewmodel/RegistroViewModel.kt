@@ -2,50 +2,68 @@ package com.example.grupo_dvik_app_spv_seccion_003d.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.grupo_dvik_app_spv_seccion_003d.data.entity.Registro
+import com.example.grupo_dvik_app_spv_seccion_003d.data.entity.RegistroEntity
 import com.example.grupo_dvik_app_spv_seccion_003d.repository.RegistroRepository
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+class RegistroViewModel(
+    private val repository: RegistroRepository
+) : ViewModel() {
 
-class RegistroViewModel(private val repository: RegistroRepository) : ViewModel() {
+    val registros: StateFlow<List<RegistroEntity>> =
+        repository.registros
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = emptyList()
+            )
 
-    private val _registros = MutableStateFlow<List<Registro>>(emptyList())
-    val registros: StateFlow<List<Registro>> = _registros
+    fun insertarRegistro(
+        registro: RegistroEntity
+    ) {
 
-    init {
         viewModelScope.launch {
-            repository.todosLosRegistros.collect { lista ->
-                _registros.value = lista
-            }
+
+            repository.insertar(
+                registro
+            )
         }
     }
 
-    fun guardarRegistro(tipo: String, descripcion: String, fecha: String) {
-        if (validarCampos(tipo, descripcion, fecha)) {
-            viewModelScope.launch {
-                repository.insertar(Registro(tipo = tipo, descripcion = descripcion, fecha = fecha))
-            }
-        }
-    }
+    fun actualizarRegistro(
+        registro: RegistroEntity
+    ) {
 
-    fun actualizarRegistro(registro: Registro) {
-        if (validarCampos(registro.tipo, registro.descripcion, registro.fecha)) {
-            viewModelScope.launch {
-                repository.actualizar(registro)
-            }
-        }
-    }
-
-    fun eliminarRegistro(registro: Registro) {
         viewModelScope.launch {
-            repository.eliminar(registro)
+
+            repository.actualizar(
+                registro
+            )
         }
     }
 
-    // Validaciones requeridas
-    private fun validarCampos(tipo: String, descripcion: String, fecha: String): Boolean {
-        return tipo.isNotBlank() && descripcion.isNotBlank() && fecha.isNotBlank()
+    fun eliminarRegistro(
+        registro: RegistroEntity
+    ) {
+
+        viewModelScope.launch {
+
+            repository.eliminar(
+                registro
+            )
+        }
+    }
+
+    fun obtenerRegistro(
+        id: Int
+    ) {
+
+        viewModelScope.launch {
+
+            repository.obtener(id)
+        }
     }
 }
