@@ -31,6 +31,12 @@ class Validaciones {
         return campo.isNotBlank()
     }
 
+    fun validarEstado(estado: String): Boolean {
+
+        return estado.isNotBlank() &&
+                estado.length >= 3
+    }
+
     fun validarNumero(numero: String): Boolean {
 
         val valor = numero.toIntOrNull()

@@ -95,8 +95,8 @@ class AdminViewModel(
             return false
         }
 
-        if (!validaciones.validarCampo(estado)) {
-            mensaje = "El estado es obligatorio"
+        if (!validaciones.validarEstado(estado)) {
+            mensaje = "El estado debe tener al menos 3 caracteres"
             return false
         }
 
@@ -131,8 +131,8 @@ class AdminViewModel(
         nuevoEstado: String
     ): Boolean {
 
-        if (!validaciones.validarCampo(nuevoEstado)) {
-            mensaje = "El estado no puede estar vacío"
+        if (!validaciones.validarEstado(nuevoEstado)) {
+            mensaje = "El estado debe tener al menos 3 caracteres"
             return false
         }
 
