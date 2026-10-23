@@ -1,8 +1,12 @@
 package com.example.grupo_dvik_app_spv_seccion_003d.ui
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,6 +37,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.grupo_dvik_app_spv_seccion_003d.model.Registro
+import com.example.grupo_dvik_app_spv_seccion_003d.ui.components.FotoPerfilCard
+import com.example.grupo_dvik_app_spv_seccion_003d.ui.components.RegistroCard
 import com.example.grupo_dvik_app_spv_seccion_003d.viewmodel.AdminViewModel
 import kotlinx.coroutines.delay
 
@@ -73,6 +79,12 @@ fun AdminScreen(
     onVolver: () -> Unit,
     adminViewModel: AdminViewModel = viewModel()
 ) {
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicturePreview()
+    ) { bitmap ->
+        adminViewModel.actualizarFoto(bitmap)
+    }
 
     var registroEditar by remember {
         mutableStateOf<Registro?>(null)
@@ -148,6 +160,25 @@ fun AdminScreen(
             modifier = Modifier.height(16.dp)
         )
 
+        Button(
+            onClick = {
+                cameraLauncher.launch(null)
+            }
+        ) {
+            Text("Tomar foto de perfil")
+        }
+
+        adminViewModel.fotoPerfil?.let { bitmap ->
+
+            FotoPerfilCard(
+                foto = bitmap
+            )
+        }
+
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
+
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -181,8 +212,16 @@ fun AdminScreen(
                 adminViewModel.mensaje.isNotEmpty() &&
                         errorNuevoRegistro.isEmpty() &&
                         errorEditarRegistro.isEmpty(),
-            enter = fadeIn(),
-            exit = fadeOut()
+            enter = fadeIn() + slideInVertically(
+                initialOffsetY = {
+                    it / 2
+                }
+            ),
+            exit = fadeOut() + slideOutVertically(
+                targetOffsetY = {
+                    it / 2
+                }
+            )
         ) {
 
             Card(
@@ -210,75 +249,51 @@ fun AdminScreen(
 
         LazyColumn {
 
-            items(adminViewModel.registros) { registro ->
+            if (adminViewModel.registros.isEmpty()) {
 
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 6.dp)
-                ) {
+                item {
 
-                    Column(
-                        modifier = Modifier.padding(16.dp)
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
                     ) {
 
                         Text(
-                            text = "Registro: ${registro.idRegistro}",
-                            fontWeight = FontWeight.Bold
+                            text = "No hay registros guardados",
+                            modifier = Modifier.padding(16.dp)
                         )
-
-                        Text(
-                            text = "Usuario: ${registro.idUsuario}"
-                        )
-
-                        Text(
-                            text = "Ámbito: ${registro.idAmbito}"
-                        )
-
-                        Text(
-                            text = "Fecha: ${registro.fechaHora}"
-                        )
-
-                        Text(
-                            text = "Estado: ${registro.estadoSincronizacion}"
-                        )
-
-                        Spacer(
-                            modifier = Modifier.height(12.dp)
-                        )
-
-                        Row(
-                            horizontalArrangement =
-                                Arrangement.spacedBy(8.dp)
-                        ) {
-
-                            Button(
-                                onClick = {
-
-                                    registroEditar = registro
-
-                                    nuevoEstado =
-                                        registro.estadoSincronizacion
-
-                                    errorEditarRegistro = ""
-                                }
-                            ) {
-                                Text("Editar")
-                            }
-
-                            Button(
-                                onClick = {
-
-                                    adminViewModel.eliminarRegistro(
-                                        registro
-                                    )
-                                }
-                            ) {
-                                Text("Eliminar")
-                            }
-                        }
                     }
                 }
+            }
+
+            items(
+                items = adminViewModel.registros,
+                key = {
+                    it.idRegistro
+                }
+            ) { registro ->
+
+                RegistroCard(
+                    registro = registro,
+
+                    onEditar = {
+
+                        registroEditar = it
+
+                        nuevoEstado =
+                            it.estadoSincronizacion
+
+                        errorEditarRegistro = ""
+                    },
+
+                    onEliminar = {
+
+                        adminViewModel.eliminarRegistro(
+                            it
+                        )
+                    }
+                )
             }
         }
     }
@@ -346,11 +361,11 @@ fun AdminScreen(
                             Text("Fecha y hora")
                         },
                         placeholder = {
-                            Text("dd/MM/yyyy HH:mm")
+                            Text("Ingrese una fecha válida")
                         },
                         supportingText = {
                             Text(
-                                "Ingrese solo números. Ejemplo: 091020261430"
+                                "Ejemplo: 09/10/2026 14:30"
                             )
                         },
                         keyboardOptions = KeyboardOptions(

@@ -1,6 +1,7 @@
 package com.example.grupo_dvik_app_spv_seccion_003d.viewmodel
 
 import android.app.Application
+import android.graphics.Bitmap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -19,6 +20,9 @@ class AdminViewModel(
     private val validaciones = Validaciones()
 
     val registros = mutableStateListOf<Registro>()
+
+    var fotoPerfil by mutableStateOf<Bitmap?>(null)
+        private set
 
     var mensaje by mutableStateOf("")
         private set
@@ -91,8 +95,8 @@ class AdminViewModel(
             return false
         }
 
-        if (!validaciones.validarCampo(estado)) {
-            mensaje = "El estado es obligatorio"
+        if (!validaciones.validarEstado(estado)) {
+            mensaje = "El estado debe tener al menos 3 caracteres"
             return false
         }
 
@@ -127,8 +131,8 @@ class AdminViewModel(
         nuevoEstado: String
     ): Boolean {
 
-        if (!validaciones.validarCampo(nuevoEstado)) {
-            mensaje = "El estado no puede estar vacío"
+        if (!validaciones.validarEstado(nuevoEstado)) {
+            mensaje = "El estado debe tener al menos 3 caracteres"
             return false
         }
 
@@ -169,6 +173,20 @@ class AdminViewModel(
         repository.guardarRegistros(
             registros
         )
+    }
+
+    fun actualizarFoto(bitmap: Bitmap?) {
+
+        if (bitmap != null) {
+
+            fotoPerfil = bitmap
+
+            mensaje = "Foto de perfil actualizada correctamente"
+
+        } else {
+
+            mensaje = "No se pudo obtener la fotografía"
+        }
     }
 
     fun limpiarMensaje() {
