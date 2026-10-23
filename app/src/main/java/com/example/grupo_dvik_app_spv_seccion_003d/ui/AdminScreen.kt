@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,7 +32,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -41,6 +39,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.grupo_dvik_app_spv_seccion_003d.model.Registro
 import com.example.grupo_dvik_app_spv_seccion_003d.viewmodel.AdminViewModel
 import kotlinx.coroutines.delay
+import com.example.grupo_dvik_app_spv_seccion_003d.ui.components.FotoPerfilCard
 
 private fun formatearFechaHora(texto: String): String {
 
@@ -170,13 +169,8 @@ fun AdminScreen(
 
         adminViewModel.fotoPerfil?.let { bitmap ->
 
-            Spacer(
-                modifier = Modifier.height(12.dp)
-            )
-
-            Image(
-                bitmap = bitmap.asImageBitmap(),
-                contentDescription = "Foto de perfil"
+            FotoPerfilCard(
+                foto = bitmap
             )
         }
 

@@ -176,7 +176,17 @@ class AdminViewModel(
     }
 
     fun actualizarFoto(bitmap: Bitmap?) {
-        fotoPerfil = bitmap
+
+        if (bitmap != null) {
+
+            fotoPerfil = bitmap
+
+            mensaje = "Foto de perfil actualizada correctamente"
+
+        } else {
+
+            mensaje = "No se pudo obtener la fotografía"
+        }
     }
 
     fun limpiarMensaje() {
