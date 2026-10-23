@@ -1,8 +1,13 @@
 package com.example.grupo_dvik_app_spv_seccion_003d.ui
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +33,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -73,6 +79,12 @@ fun AdminScreen(
     onVolver: () -> Unit,
     adminViewModel: AdminViewModel = viewModel()
 ) {
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicturePreview()
+    ) { bitmap ->
+        adminViewModel.actualizarFoto(bitmap)
+    }
 
     var registroEditar by remember {
         mutableStateOf<Registro?>(null)
@@ -148,6 +160,30 @@ fun AdminScreen(
             modifier = Modifier.height(16.dp)
         )
 
+        Button(
+            onClick = {
+                cameraLauncher.launch(null)
+            }
+        ) {
+            Text("Tomar foto de perfil")
+        }
+
+        adminViewModel.fotoPerfil?.let { bitmap ->
+
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
+
+            Image(
+                bitmap = bitmap.asImageBitmap(),
+                contentDescription = "Foto de perfil"
+            )
+        }
+
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
+
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -181,8 +217,16 @@ fun AdminScreen(
                 adminViewModel.mensaje.isNotEmpty() &&
                         errorNuevoRegistro.isEmpty() &&
                         errorEditarRegistro.isEmpty(),
-            enter = fadeIn(),
-            exit = fadeOut()
+            enter = fadeIn() + slideInVertically(
+                initialOffsetY = {
+                    it / 2
+                }
+            ),
+            exit = fadeOut() + slideOutVertically(
+                targetOffsetY = {
+                    it / 2
+                }
+            )
         ) {
 
             Card(
@@ -346,11 +390,11 @@ fun AdminScreen(
                             Text("Fecha y hora")
                         },
                         placeholder = {
-                            Text("dd/MM/yyyy HH:mm")
+                            Text("Ingrese una fecha válida")
                         },
                         supportingText = {
                             Text(
-                                "Ingrese solo números. Ejemplo: 091020261430"
+                                "Ejemplo: 09/10/2026 14:30"
                             )
                         },
                         keyboardOptions = KeyboardOptions(

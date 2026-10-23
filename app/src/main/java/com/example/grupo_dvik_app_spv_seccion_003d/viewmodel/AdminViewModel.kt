@@ -1,6 +1,7 @@
 package com.example.grupo_dvik_app_spv_seccion_003d.viewmodel
 
 import android.app.Application
+import android.graphics.Bitmap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -19,6 +20,9 @@ class AdminViewModel(
     private val validaciones = Validaciones()
 
     val registros = mutableStateListOf<Registro>()
+
+    var fotoPerfil by mutableStateOf<Bitmap?>(null)
+        private set
 
     var mensaje by mutableStateOf("")
         private set
@@ -169,6 +173,10 @@ class AdminViewModel(
         repository.guardarRegistros(
             registros
         )
+    }
+
+    fun actualizarFoto(bitmap: Bitmap?) {
+        fotoPerfil = bitmap
     }
 
     fun limpiarMensaje() {
