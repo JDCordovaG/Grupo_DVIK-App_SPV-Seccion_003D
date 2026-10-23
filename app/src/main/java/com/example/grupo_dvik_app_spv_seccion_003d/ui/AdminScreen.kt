@@ -37,9 +37,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.grupo_dvik_app_spv_seccion_003d.model.Registro
+import com.example.grupo_dvik_app_spv_seccion_003d.ui.components.FotoPerfilCard
 import com.example.grupo_dvik_app_spv_seccion_003d.viewmodel.AdminViewModel
 import kotlinx.coroutines.delay
-import com.example.grupo_dvik_app_spv_seccion_003d.ui.components.FotoPerfilCard
 
 private fun formatearFechaHora(texto: String): String {
 
@@ -247,6 +247,24 @@ fun AdminScreen(
         )
 
         LazyColumn {
+
+            if (adminViewModel.registros.isEmpty()) {
+
+                item {
+
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    ) {
+
+                        Text(
+                            text = "No hay registros guardados",
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                }
+            }
 
             items(adminViewModel.registros) { registro ->
 
