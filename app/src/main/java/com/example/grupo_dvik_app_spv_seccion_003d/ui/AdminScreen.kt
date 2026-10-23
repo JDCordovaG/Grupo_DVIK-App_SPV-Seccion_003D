@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.grupo_dvik_app_spv_seccion_003d.model.Registro
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.components.FotoPerfilCard
+import com.example.grupo_dvik_app_spv_seccion_003d.ui.components.RegistroCard
 import com.example.grupo_dvik_app_spv_seccion_003d.viewmodel.AdminViewModel
 import kotlinx.coroutines.delay
 
@@ -266,75 +267,33 @@ fun AdminScreen(
                 }
             }
 
-            items(adminViewModel.registros) { registro ->
-
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 6.dp)
-                ) {
-
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
-
-                        Text(
-                            text = "Registro: ${registro.idRegistro}",
-                            fontWeight = FontWeight.Bold
-                        )
-
-                        Text(
-                            text = "Usuario: ${registro.idUsuario}"
-                        )
-
-                        Text(
-                            text = "Ámbito: ${registro.idAmbito}"
-                        )
-
-                        Text(
-                            text = "Fecha: ${registro.fechaHora}"
-                        )
-
-                        Text(
-                            text = "Estado: ${registro.estadoSincronizacion}"
-                        )
-
-                        Spacer(
-                            modifier = Modifier.height(12.dp)
-                        )
-
-                        Row(
-                            horizontalArrangement =
-                                Arrangement.spacedBy(8.dp)
-                        ) {
-
-                            Button(
-                                onClick = {
-
-                                    registroEditar = registro
-
-                                    nuevoEstado =
-                                        registro.estadoSincronizacion
-
-                                    errorEditarRegistro = ""
-                                }
-                            ) {
-                                Text("Editar")
-                            }
-
-                            Button(
-                                onClick = {
-
-                                    adminViewModel.eliminarRegistro(
-                                        registro
-                                    )
-                                }
-                            ) {
-                                Text("Eliminar")
-                            }
-                        }
-                    }
+            items(
+                items = adminViewModel.registros,
+                key = {
+                    it.idRegistro
                 }
+            ) { registro ->
+
+                RegistroCard(
+                    registro = registro,
+
+                    onEditar = {
+
+                        registroEditar = it
+
+                        nuevoEstado =
+                            it.estadoSincronizacion
+
+                        errorEditarRegistro = ""
+                    },
+
+                    onEliminar = {
+
+                        adminViewModel.eliminarRegistro(
+                            it
+                        )
+                    }
+                )
             }
         }
     }
