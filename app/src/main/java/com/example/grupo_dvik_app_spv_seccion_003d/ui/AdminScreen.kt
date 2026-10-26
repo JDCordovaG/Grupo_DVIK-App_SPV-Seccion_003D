@@ -42,38 +42,6 @@ import com.example.grupo_dvik_app_spv_seccion_003d.ui.components.RegistroCard
 import com.example.grupo_dvik_app_spv_seccion_003d.viewmodel.AdminViewModel
 import kotlinx.coroutines.delay
 
-private fun formatearFechaHora(texto: String): String {
-
-    val numeros = texto
-        .filter { it.isDigit() }
-        .take(12)
-
-    var resultado = ""
-
-    for (i in numeros.indices) {
-
-        resultado += numeros[i]
-
-        if (i == 1) {
-            resultado += "/"
-        }
-
-        if (i == 3) {
-            resultado += "/"
-        }
-
-        if (i == 7) {
-            resultado += " "
-        }
-
-        if (i == 9) {
-            resultado += ":"
-        }
-    }
-
-    return resultado
-}
-
 @Composable
 fun AdminScreen(
     onVolver: () -> Unit,
@@ -355,7 +323,7 @@ fun AdminScreen(
                     OutlinedTextField(
                         value = fechaHora,
                         onValueChange = {
-                            fechaHora = formatearFechaHora(it)
+                            fechaHora = it
                         },
                         label = {
                             Text("Fecha y hora")
@@ -368,9 +336,6 @@ fun AdminScreen(
                                 "Ejemplo: 09/10/2026 14:30"
                             )
                         },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number
-                        ),
                         singleLine = true
                     )
 
