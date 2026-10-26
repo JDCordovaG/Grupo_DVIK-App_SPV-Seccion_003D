@@ -12,6 +12,7 @@ import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
 
@@ -19,6 +20,12 @@ import androidx.compose.ui.unit.dp
 fun FotoPerfilCard(
     foto: Bitmap
 ) {
+
+    val rotacion = if (foto.width > foto.height) {
+        90f
+    } else {
+        0f
+    }
 
     Spacer(
         modifier = Modifier.height(12.dp)
@@ -41,6 +48,7 @@ fun FotoPerfilCard(
                 modifier = Modifier
                     .width(180.dp)
                     .height(180.dp)
+                    .rotate(rotacion)
             )
         }
     }

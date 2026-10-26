@@ -32,15 +32,54 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.grupo_dvik_app_spv_seccion_003d.model.Ambito
 import com.example.grupo_dvik_app_spv_seccion_003d.model.Registro
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.components.FotoPerfilCard
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.components.RegistroCard
+import com.example.grupo_dvik_app_spv_seccion_003d.ui.components.SelectorAmbito
+import com.example.grupo_dvik_app_spv_seccion_003d.ui.components.SelectorEstado
 import com.example.grupo_dvik_app_spv_seccion_003d.viewmodel.AdminViewModel
 import kotlinx.coroutines.delay
+
+private fun formatearFechaHora(
+    texto: String
+): String {
+
+    val numeros = texto
+        .filter { it.isDigit() }
+        .take(12)
+
+    var resultado = ""
+
+    for (i in numeros.indices) {
+
+        resultado += numeros[i]
+
+        if (i == 1 && numeros.length > 2) {
+            resultado += "/"
+        }
+
+        if (i == 3 && numeros.length > 4) {
+            resultado += "/"
+        }
+
+        if (i == 7 && numeros.length > 8) {
+            resultado += " "
+        }
+
+        if (i == 9 && numeros.length > 10) {
+            resultado += ":"
+        }
+    }
+
+    return resultado
+}
 
 @Composable
 fun AdminScreen(
@@ -70,12 +109,14 @@ fun AdminScreen(
         mutableStateOf("")
     }
 
-    var idAmbito by remember {
-        mutableStateOf("")
+    var ambitoSeleccionado by remember {
+        mutableStateOf<Ambito?>(null)
     }
 
     var fechaHora by remember {
-        mutableStateOf("")
+        mutableStateOf(
+            TextFieldValue("")
+        )
     }
 
     var estadoRegistro by remember {
@@ -302,13 +343,43 @@ fun AdminScreen(
                         modifier = Modifier.height(8.dp)
                     )
 
+                    SelectorAmbito(
+                        ambitoSeleccionado = ambitoSeleccionado,
+                        onAmbitoSeleccionado = {
+                            ambitoSeleccionado = it
+                        }
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(8.dp)
+                    )
+
                     OutlinedTextField(
-                        value = idAmbito,
-                        onValueChange = {
-                            idAmbito = it
+                        value = fechaHora,
+                        onValueChange = { nuevoValor ->
+
+                            val textoFormateado =
+                                formatearFechaHora(
+                                    nuevoValor.text
+                                )
+
+                            fechaHora = TextFieldValue(
+                                text = textoFormateado,
+                                selection = TextRange(
+                                    textoFormateado.length
+                                )
+                            )
                         },
                         label = {
-                            Text("ID Ámbito")
+                            Text("Fecha y hora")
+                        },
+                        placeholder = {
+                            Text("02/12/2026 14:30")
+                        },
+                        supportingText = {
+                            Text(
+                                "Escriba solo los números"
+                            )
                         },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number
@@ -320,38 +391,11 @@ fun AdminScreen(
                         modifier = Modifier.height(8.dp)
                     )
 
-                    OutlinedTextField(
-                        value = fechaHora,
-                        onValueChange = {
-                            fechaHora = it
-                        },
-                        label = {
-                            Text("Fecha y hora")
-                        },
-                        placeholder = {
-                            Text("Ingrese una fecha válida")
-                        },
-                        supportingText = {
-                            Text(
-                                "Ejemplo: 09/10/2026 14:30"
-                            )
-                        },
-                        singleLine = true
-                    )
-
-                    Spacer(
-                        modifier = Modifier.height(8.dp)
-                    )
-
-                    OutlinedTextField(
-                        value = estadoRegistro,
-                        onValueChange = {
+                    SelectorEstado(
+                        estadoSeleccionado = estadoRegistro,
+                        onEstadoSeleccionado = {
                             estadoRegistro = it
-                        },
-                        label = {
-                            Text("Estado")
-                        },
-                        singleLine = true
+                        }
                     )
 
                     if (errorNuevoRegistro.isNotEmpty()) {
@@ -376,16 +420,20 @@ fun AdminScreen(
                         val creado =
                             adminViewModel.crearRegistro(
                                 idUsuario,
-                                idAmbito,
-                                fechaHora,
+                                ambitoSeleccionado?.id?.toString() ?: "",
+                                fechaHora.text,
                                 estadoRegistro
                             )
 
                         if (creado) {
 
                             idUsuario = ""
-                            idAmbito = ""
-                            fechaHora = ""
+
+                            ambitoSeleccionado = null
+
+                            fechaHora =
+                                TextFieldValue("")
+
                             estadoRegistro = ""
 
                             errorNuevoRegistro = ""
@@ -440,22 +488,18 @@ fun AdminScreen(
                 Column {
 
                     Text(
-                        text = "Modifique el estado del registro."
+                        text = "Seleccione el nuevo estado del registro."
                     )
 
                     Spacer(
                         modifier = Modifier.height(8.dp)
                     )
 
-                    OutlinedTextField(
-                        value = nuevoEstado,
-                        onValueChange = {
+                    SelectorEstado(
+                        estadoSeleccionado = nuevoEstado,
+                        onEstadoSeleccionado = {
                             nuevoEstado = it
-                        },
-                        label = {
-                            Text("Estado de sincronización")
-                        },
-                        singleLine = true
+                        }
                     )
 
                     if (errorEditarRegistro.isNotEmpty()) {

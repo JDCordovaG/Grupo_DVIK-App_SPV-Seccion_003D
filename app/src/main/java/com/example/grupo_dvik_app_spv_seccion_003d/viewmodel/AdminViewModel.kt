@@ -79,8 +79,8 @@ class AdminViewModel(
             return false
         }
 
-        if (!validaciones.validarNumero(idAmbitoTexto)) {
-            mensaje = "Debe ingresar un ámbito válido"
+        if (!validaciones.validarAmbito(idAmbitoTexto)) {
+            mensaje = "Debe seleccionar un ámbito válido"
             return false
         }
 
@@ -96,7 +96,7 @@ class AdminViewModel(
         }
 
         if (!validaciones.validarEstado(estado)) {
-            mensaje = "El estado debe tener al menos 3 caracteres"
+            mensaje = "Seleccione un estado válido"
             return false
         }
 
@@ -132,7 +132,7 @@ class AdminViewModel(
     ): Boolean {
 
         if (!validaciones.validarEstado(nuevoEstado)) {
-            mensaje = "El estado debe tener al menos 3 caracteres"
+            mensaje = "Seleccione un estado válido"
             return false
         }
 
