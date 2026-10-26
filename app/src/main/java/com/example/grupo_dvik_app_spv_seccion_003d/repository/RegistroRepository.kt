@@ -1,21 +1,37 @@
 package com.example.grupo_dvik_app_spv_seccion_003d.repository
 
 import com.example.grupo_dvik_app_spv_seccion_003d.data.dao.RegistroDao
-import com.example.grupo_dvik_app_spv_seccion_003d.data.entity.Registro
-import kotlinx.coroutines.flow.Flow
+import com.example.grupo_dvik_app_spv_seccion_003d.data.entity.RegistroEntity
 
-class RegistroRepository(private val registroDao: RegistroDao) {
-    val todosLosRegistros: Flow<List<Registro>> = registroDao.obtenerTodos()
+class RegistroRepository(
+    private val dao: RegistroDao
+) {
 
-    suspend fun insertar(registro: Registro) {
-        registroDao.insertar(registro)
+    val registros =
+        dao.observarTodos()
+
+    suspend fun insertar(
+        registro: RegistroEntity
+    ) {
+        dao.insertar(registro)
     }
 
-    suspend fun actualizar(registro: Registro) {
-        registroDao.actualizar(registro)
+    suspend fun actualizar(
+        registro: RegistroEntity
+    ) {
+        dao.actualizar(registro)
     }
 
-    suspend fun eliminar(registro: Registro) {
-        registroDao.eliminar(registro)
+    suspend fun eliminar(
+        registro: RegistroEntity
+    ) {
+        dao.eliminar(registro)
+    }
+
+    suspend fun obtener(
+        id: Int
+    ): RegistroEntity? {
+
+        return dao.obtenerPorId(id)
     }
 }
