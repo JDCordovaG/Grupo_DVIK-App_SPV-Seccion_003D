@@ -33,8 +33,18 @@ class Validaciones {
 
     fun validarEstado(estado: String): Boolean {
 
-        return estado.isNotBlank() &&
-                estado.length >= 3
+        return estado == "Pendiente" ||
+                estado == "Sincronizado"
+    }
+
+    fun validarAmbito(idAmbito: String): Boolean {
+
+        val id = idAmbito.toIntOrNull()
+
+        return id == 1 ||
+                id == 2 ||
+                id == 3 ||
+                id == 4
     }
 
     fun validarNumero(numero: String): Boolean {
