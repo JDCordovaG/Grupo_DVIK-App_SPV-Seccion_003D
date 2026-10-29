@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -87,11 +88,20 @@ fun AdminScreen(
     adminViewModel: AdminViewModel = viewModel()
 ) {
 
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicturePreview()
-    ) { bitmap ->
-        adminViewModel.actualizarFoto(bitmap)
-    }
+    val registros by
+    adminViewModel.registros.collectAsState()
+
+    val cameraLauncher =
+        rememberLauncherForActivityResult(
+            contract =
+                ActivityResultContracts
+                    .TakePicturePreview()
+        ) { bitmap ->
+
+            adminViewModel.actualizarFoto(
+                bitmap
+            )
+        }
 
     var registroEditar by remember {
         mutableStateOf<Registro?>(null)
@@ -131,7 +141,9 @@ fun AdminScreen(
         mutableStateOf("")
     }
 
-    LaunchedEffect(adminViewModel.mensaje) {
+    LaunchedEffect(
+        adminViewModel.mensaje
+    ) {
 
         if (
             adminViewModel.mensaje.isNotEmpty() &&
@@ -141,7 +153,8 @@ fun AdminScreen(
 
             delay(2500)
 
-            adminViewModel.limpiarMensaje()
+            adminViewModel
+                .limpiarMensaje()
         }
     }
 
@@ -153,12 +166,17 @@ fun AdminScreen(
 
         Text(
             text = "Panel Administrador",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
+            style =
+                MaterialTheme
+                    .typography
+                    .headlineMedium,
+            fontWeight =
+                FontWeight.Bold
         )
 
         Spacer(
-            modifier = Modifier.height(8.dp)
+            modifier =
+                Modifier.height(8.dp)
         )
 
         Text(
@@ -166,7 +184,8 @@ fun AdminScreen(
         )
 
         Spacer(
-            modifier = Modifier.height(16.dp)
+            modifier =
+                Modifier.height(16.dp)
         )
 
         Button(
@@ -174,22 +193,29 @@ fun AdminScreen(
                 cameraLauncher.launch(null)
             }
         ) {
-            Text("Tomar foto de perfil")
-        }
 
-        adminViewModel.fotoPerfil?.let { bitmap ->
-
-            FotoPerfilCard(
-                foto = bitmap
+            Text(
+                "Tomar foto de perfil"
             )
         }
 
+        adminViewModel
+            .fotoPerfil
+            ?.let { bitmap ->
+
+                FotoPerfilCard(
+                    foto = bitmap
+                )
+            }
+
         Spacer(
-            modifier = Modifier.height(16.dp)
+            modifier =
+                Modifier.height(16.dp)
         )
 
         Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement =
+                Arrangement.spacedBy(8.dp)
         ) {
 
             Button(
@@ -197,6 +223,7 @@ fun AdminScreen(
                     onVolver()
                 }
             ) {
+
                 Text("Volver")
             }
 
@@ -205,102 +232,136 @@ fun AdminScreen(
 
                     errorNuevoRegistro = ""
 
-                    mostrarNuevoRegistro = true
+                    mostrarNuevoRegistro =
+                        true
                 }
             ) {
+
                 Text("Nuevo registro")
             }
         }
 
         Spacer(
-            modifier = Modifier.height(16.dp)
+            modifier =
+                Modifier.height(16.dp)
         )
 
         AnimatedVisibility(
             visible =
-                adminViewModel.mensaje.isNotEmpty() &&
-                        errorNuevoRegistro.isEmpty() &&
-                        errorEditarRegistro.isEmpty(),
-            enter = fadeIn() + slideInVertically(
-                initialOffsetY = {
-                    it / 2
-                }
-            ),
-            exit = fadeOut() + slideOutVertically(
-                targetOffsetY = {
-                    it / 2
-                }
-            )
+                adminViewModel
+                    .mensaje
+                    .isNotEmpty() &&
+                        errorNuevoRegistro
+                            .isEmpty() &&
+                        errorEditarRegistro
+                            .isEmpty(),
+            enter =
+                fadeIn() +
+                        slideInVertically(
+                            initialOffsetY = {
+                                it / 2
+                            }
+                        ),
+            exit =
+                fadeOut() +
+                        slideOutVertically(
+                            targetOffsetY = {
+                                it / 2
+                            }
+                        )
         ) {
 
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 12.dp)
+                    .padding(
+                        bottom = 12.dp
+                    )
             ) {
 
                 Text(
-                    text = adminViewModel.mensaje,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(12.dp)
+                    text =
+                        adminViewModel
+                            .mensaje,
+                    color =
+                        MaterialTheme
+                            .colorScheme
+                            .primary,
+                    modifier =
+                        Modifier.padding(
+                            12.dp
+                        )
                 )
             }
         }
 
         Text(
-            text = "Registros guardados: ${adminViewModel.registros.size}",
-            fontWeight = FontWeight.Bold
+            text =
+                "Registros guardados: ${registros.size}",
+            fontWeight =
+                FontWeight.Bold
         )
 
         Spacer(
-            modifier = Modifier.height(8.dp)
+            modifier =
+                Modifier.height(8.dp)
         )
 
         LazyColumn {
 
-            if (adminViewModel.registros.isEmpty()) {
+            if (registros.isEmpty()) {
 
                 item {
 
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp)
+                            .padding(
+                                vertical = 8.dp
+                            )
                     ) {
 
                         Text(
-                            text = "No hay registros guardados",
-                            modifier = Modifier.padding(16.dp)
+                            text =
+                                "No hay registros guardados",
+                            modifier =
+                                Modifier.padding(
+                                    16.dp
+                                )
                         )
                     }
                 }
             }
 
             items(
-                items = adminViewModel.registros,
+                items = registros,
                 key = {
                     it.idRegistro
                 }
             ) { registro ->
 
                 RegistroCard(
-                    registro = registro,
+                    registro =
+                        registro,
 
                     onEditar = {
 
-                        registroEditar = it
+                        registroEditar =
+                            it
 
                         nuevoEstado =
                             it.estadoSincronizacion
 
-                        errorEditarRegistro = ""
+                        errorEditarRegistro =
+                            ""
                     },
 
                     onEliminar = {
 
-                        adminViewModel.eliminarRegistro(
-                            it
-                        )
+                        adminViewModel
+                            .eliminarRegistro(
+                                it
+                            )
                     }
                 )
             }
@@ -312,13 +373,18 @@ fun AdminScreen(
         AlertDialog(
             onDismissRequest = {
 
-                mostrarNuevoRegistro = false
+                mostrarNuevoRegistro =
+                    false
 
-                errorNuevoRegistro = ""
+                errorNuevoRegistro =
+                    ""
             },
 
             title = {
-                Text("Nuevo registro")
+
+                Text(
+                    "Nuevo registro"
+                )
             },
 
             text = {
@@ -326,87 +392,127 @@ fun AdminScreen(
                 Column {
 
                     OutlinedTextField(
-                        value = idUsuario,
+                        value =
+                            idUsuario,
                         onValueChange = {
                             idUsuario = it
                         },
                         label = {
-                            Text("ID Usuario")
+                            Text(
+                                "ID Usuario"
+                            )
                         },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number
-                        ),
+                        keyboardOptions =
+                            KeyboardOptions(
+                                keyboardType =
+                                    KeyboardType.Number
+                            ),
                         singleLine = true
                     )
 
                     Spacer(
-                        modifier = Modifier.height(8.dp)
+                        modifier =
+                            Modifier.height(
+                                8.dp
+                            )
                     )
 
                     SelectorAmbito(
-                        ambitoSeleccionado = ambitoSeleccionado,
+                        ambitoSeleccionado =
+                            ambitoSeleccionado,
                         onAmbitoSeleccionado = {
-                            ambitoSeleccionado = it
+                            ambitoSeleccionado =
+                                it
                         }
                     )
 
                     Spacer(
-                        modifier = Modifier.height(8.dp)
+                        modifier =
+                            Modifier.height(
+                                8.dp
+                            )
                     )
 
                     OutlinedTextField(
-                        value = fechaHora,
-                        onValueChange = { nuevoValor ->
+                        value =
+                            fechaHora,
+                        onValueChange = {
+                                nuevoValor ->
 
                             val textoFormateado =
                                 formatearFechaHora(
                                     nuevoValor.text
                                 )
 
-                            fechaHora = TextFieldValue(
-                                text = textoFormateado,
-                                selection = TextRange(
-                                    textoFormateado.length
+                            fechaHora =
+                                TextFieldValue(
+                                    text =
+                                        textoFormateado,
+                                    selection =
+                                        TextRange(
+                                            textoFormateado
+                                                .length
+                                        )
                                 )
-                            )
                         },
                         label = {
-                            Text("Fecha y hora")
+                            Text(
+                                "Fecha y hora"
+                            )
                         },
                         placeholder = {
-                            Text("02/12/2026 14:30")
+                            Text(
+                                "02/12/2026 14:30"
+                            )
                         },
                         supportingText = {
                             Text(
                                 "Escriba solo los números"
                             )
                         },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number
-                        ),
+                        keyboardOptions =
+                            KeyboardOptions(
+                                keyboardType =
+                                    KeyboardType.Number
+                            ),
                         singleLine = true
                     )
 
                     Spacer(
-                        modifier = Modifier.height(8.dp)
+                        modifier =
+                            Modifier.height(
+                                8.dp
+                            )
                     )
 
                     SelectorEstado(
-                        estadoSeleccionado = estadoRegistro,
+                        estadoSeleccionado =
+                            estadoRegistro,
                         onEstadoSeleccionado = {
-                            estadoRegistro = it
+                            estadoRegistro =
+                                it
                         }
                     )
 
-                    if (errorNuevoRegistro.isNotEmpty()) {
+                    if (
+                        errorNuevoRegistro
+                            .isNotEmpty()
+                    ) {
 
                         Spacer(
-                            modifier = Modifier.height(8.dp)
+                            modifier =
+                                Modifier.height(
+                                    8.dp
+                                )
                         )
 
                         Text(
-                            text = errorNuevoRegistro,
-                            color = MaterialTheme.colorScheme.error
+                            text =
+                                errorNuevoRegistro,
+                            color =
+                                MaterialTheme
+                                    .colorScheme
+                                    .error
                         )
                     }
                 }
@@ -418,37 +524,50 @@ fun AdminScreen(
                     onClick = {
 
                         val creado =
-                            adminViewModel.crearRegistro(
-                                idUsuario,
-                                ambitoSeleccionado?.id?.toString() ?: "",
-                                fechaHora.text,
-                                estadoRegistro
-                            )
+                            adminViewModel
+                                .crearRegistro(
+                                    idUsuario,
+                                    ambitoSeleccionado
+                                        ?.id
+                                        ?.toString()
+                                        ?: "",
+                                    fechaHora.text,
+                                    estadoRegistro
+                                )
 
                         if (creado) {
 
                             idUsuario = ""
 
-                            ambitoSeleccionado = null
+                            ambitoSeleccionado =
+                                null
 
                             fechaHora =
-                                TextFieldValue("")
+                                TextFieldValue(
+                                    ""
+                                )
 
-                            estadoRegistro = ""
+                            estadoRegistro =
+                                ""
 
-                            errorNuevoRegistro = ""
+                            errorNuevoRegistro =
+                                ""
 
-                            mostrarNuevoRegistro = false
+                            mostrarNuevoRegistro =
+                                false
 
                         } else {
 
                             errorNuevoRegistro =
-                                adminViewModel.mensaje
+                                adminViewModel
+                                    .mensaje
 
-                            adminViewModel.limpiarMensaje()
+                            adminViewModel
+                                .limpiarMensaje()
                         }
                     }
                 ) {
+
                     Text("Guardar")
                 }
             },
@@ -458,11 +577,14 @@ fun AdminScreen(
                 TextButton(
                     onClick = {
 
-                        mostrarNuevoRegistro = false
+                        mostrarNuevoRegistro =
+                            false
 
-                        errorNuevoRegistro = ""
+                        errorNuevoRegistro =
+                            ""
                     }
                 ) {
+
                     Text("Cancelar")
                 }
             }
@@ -476,11 +598,15 @@ fun AdminScreen(
 
                 registroEditar = null
 
-                errorEditarRegistro = ""
+                errorEditarRegistro =
+                    ""
             },
 
             title = {
-                Text("Editar registro")
+
+                Text(
+                    "Editar registro"
+                )
             },
 
             text = {
@@ -488,29 +614,45 @@ fun AdminScreen(
                 Column {
 
                     Text(
-                        text = "Seleccione el nuevo estado del registro."
+                        text =
+                            "Seleccione el nuevo estado del registro."
                     )
 
                     Spacer(
-                        modifier = Modifier.height(8.dp)
+                        modifier =
+                            Modifier.height(
+                                8.dp
+                            )
                     )
 
                     SelectorEstado(
-                        estadoSeleccionado = nuevoEstado,
+                        estadoSeleccionado =
+                            nuevoEstado,
                         onEstadoSeleccionado = {
-                            nuevoEstado = it
+                            nuevoEstado =
+                                it
                         }
                     )
 
-                    if (errorEditarRegistro.isNotEmpty()) {
+                    if (
+                        errorEditarRegistro
+                            .isNotEmpty()
+                    ) {
 
                         Spacer(
-                            modifier = Modifier.height(8.dp)
+                            modifier =
+                                Modifier.height(
+                                    8.dp
+                                )
                         )
 
                         Text(
-                            text = errorEditarRegistro,
-                            color = MaterialTheme.colorScheme.error
+                            text =
+                                errorEditarRegistro,
+                            color =
+                                MaterialTheme
+                                    .colorScheme
+                                    .error
                         )
                     }
                 }
@@ -521,32 +663,39 @@ fun AdminScreen(
                 TextButton(
                     onClick = {
 
-                        val registro = registroEditar
+                        val registro =
+                            registroEditar
 
                         if (registro != null) {
 
                             val modificado =
-                                adminViewModel.modificarRegistro(
-                                    registro,
-                                    nuevoEstado
-                                )
+                                adminViewModel
+                                    .modificarRegistro(
+                                        registro,
+                                        nuevoEstado
+                                    )
 
                             if (modificado) {
 
-                                errorEditarRegistro = ""
+                                errorEditarRegistro =
+                                    ""
 
-                                registroEditar = null
+                                registroEditar =
+                                    null
 
                             } else {
 
                                 errorEditarRegistro =
-                                    adminViewModel.mensaje
+                                    adminViewModel
+                                        .mensaje
 
-                                adminViewModel.limpiarMensaje()
+                                adminViewModel
+                                    .limpiarMensaje()
                             }
                         }
                     }
                 ) {
+
                     Text("Guardar")
                 }
             },
@@ -556,11 +705,14 @@ fun AdminScreen(
                 TextButton(
                     onClick = {
 
-                        registroEditar = null
+                        registroEditar =
+                            null
 
-                        errorEditarRegistro = ""
+                        errorEditarRegistro =
+                            ""
                     }
                 ) {
+
                     Text("Cancelar")
                 }
             }

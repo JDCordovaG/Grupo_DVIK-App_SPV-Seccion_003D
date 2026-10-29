@@ -3,67 +3,106 @@ package com.example.grupo_dvik_app_spv_seccion_003d.viewmodel
 import android.app.Application
 import android.graphics.Bitmap
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
-import com.example.grupo_dvik_app_spv_seccion_003d.data.RegistroRepository
+import androidx.lifecycle.viewModelScope
+import com.example.grupo_dvik_app_spv_seccion_003d.data.entity.RegistroEntity
 import com.example.grupo_dvik_app_spv_seccion_003d.model.Registro
+import com.example.grupo_dvik_app_spv_seccion_003d.repository.RegistroRepository
 import com.example.grupo_dvik_app_spv_seccion_003d.validation.Validaciones
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class AdminViewModel(
     application: Application
 ) : AndroidViewModel(application) {
 
-    private val repository = RegistroRepository(application)
+    private val repository =
+        RegistroRepository(application)
 
-    private val validaciones = Validaciones()
+    private val validaciones =
+        Validaciones()
 
-    val registros = mutableStateListOf<Registro>()
+    val registros: StateFlow<List<Registro>> =
+        repository.registros
+            .map { lista ->
 
-    var fotoPerfil by mutableStateOf<Bitmap?>(null)
+                lista.map { registro ->
+
+                    Registro(
+                        idRegistro =
+                            registro.idRegistro,
+                        idUsuario =
+                            registro.idUsuario,
+                        idAmbito =
+                            registro.idAmbito,
+                        fechaHora =
+                            registro.fechaHora,
+                        estadoSincronizacion =
+                            registro.estadoSincronizacion
+                    )
+                }
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started =
+                    SharingStarted.WhileSubscribed(
+                        5_000
+                    ),
+                initialValue = emptyList()
+            )
+
+    var fotoPerfil by
+    mutableStateOf<Bitmap?>(null)
         private set
 
-    var mensaje by mutableStateOf("")
+    var mensaje by
+    mutableStateOf("")
         private set
 
     init {
 
-        val registrosGuardados = repository.cargarRegistros()
+        viewModelScope.launch {
 
-        if (registrosGuardados.isNotEmpty()) {
+            if (repository.contar() == 0) {
 
-            registros.addAll(registrosGuardados)
-
-        } else {
-
-            registros.addAll(
-                listOf(
-                    Registro(
-                        idRegistro = 1,
+                repository.insertar(
+                    RegistroEntity(
                         idUsuario = 1,
                         idAmbito = 1,
-                        fechaHora = "28/09/2026 10:30",
-                        estadoSincronizacion = "Sincronizado"
-                    ),
-                    Registro(
-                        idRegistro = 2,
-                        idUsuario = 1,
-                        idAmbito = 2,
-                        fechaHora = "28/09/2026 11:15",
-                        estadoSincronizacion = "Pendiente"
-                    ),
-                    Registro(
-                        idRegistro = 3,
-                        idUsuario = 2,
-                        idAmbito = 3,
-                        fechaHora = "28/09/2026 12:00",
-                        estadoSincronizacion = "Sincronizado"
+                        fechaHora =
+                            "28/09/2026 10:30",
+                        estadoSincronizacion =
+                            "Sincronizado"
                     )
                 )
-            )
 
-            guardar()
+                repository.insertar(
+                    RegistroEntity(
+                        idUsuario = 1,
+                        idAmbito = 2,
+                        fechaHora =
+                            "28/09/2026 11:15",
+                        estadoSincronizacion =
+                            "Pendiente"
+                    )
+                )
+
+                repository.insertar(
+                    RegistroEntity(
+                        idUsuario = 2,
+                        idAmbito = 3,
+                        fechaHora =
+                            "28/09/2026 12:00",
+                        estadoSincronizacion =
+                            "Sincronizado"
+                    )
+                )
+            }
         }
     }
 
@@ -74,56 +113,115 @@ class AdminViewModel(
         estado: String
     ): Boolean {
 
-        if (!validaciones.validarNumero(idUsuarioTexto)) {
-            mensaje = "Debe ingresar un usuario válido"
+        if (
+            !validaciones.validarNumero(
+                idUsuarioTexto
+            )
+        ) {
+
+            mensaje =
+                "Debe ingresar un usuario válido"
+
             return false
         }
 
-        if (!validaciones.validarAmbito(idAmbitoTexto)) {
-            mensaje = "Debe seleccionar un ámbito válido"
+        if (
+            !validaciones.validarAmbito(
+                idAmbitoTexto
+            )
+        ) {
+
+            mensaje =
+                "Debe seleccionar un ámbito válido"
+
             return false
         }
 
-        if (!validaciones.validarCampo(fechaHora)) {
-            mensaje = "La fecha y hora son obligatorias"
+        if (
+            !validaciones.validarCampo(
+                fechaHora
+            )
+        ) {
+
+            mensaje =
+                "La fecha y hora son obligatorias"
+
             return false
         }
 
-        if (!validaciones.validarFechaHora(fechaHora)) {
+        if (
+            !validaciones.validarFechaHora(
+                fechaHora
+            )
+        ) {
+
             mensaje =
                 "La fecha y hora deben tener formato dd/MM/yyyy HH:mm"
+
             return false
         }
 
-        if (!validaciones.validarEstado(estado)) {
-            mensaje = "Seleccione un estado válido"
+        if (
+            !validaciones.validarEstado(
+                estado
+            )
+        ) {
+
+            mensaje =
+                "Seleccione un estado válido"
+
             return false
         }
 
-        val nuevoRegistro = Registro(
-            idRegistro = obtenerSiguienteId(),
-            idUsuario = idUsuarioTexto.toInt(),
-            idAmbito = idAmbitoTexto.toInt(),
-            fechaHora = fechaHora,
-            estadoSincronizacion = estado
-        )
+        val nuevoRegistro =
+            RegistroEntity(
+                idUsuario =
+                    idUsuarioTexto.toInt(),
+                idAmbito =
+                    idAmbitoTexto.toInt(),
+                fechaHora =
+                    fechaHora,
+                estadoSincronizacion =
+                    estado
+            )
 
-        registros.add(nuevoRegistro)
+        viewModelScope.launch {
 
-        guardar()
+            repository.insertar(
+                nuevoRegistro
+            )
 
-        mensaje = "Registro agregado correctamente"
+            mensaje =
+                "Registro agregado correctamente"
+        }
 
         return true
     }
 
-    fun eliminarRegistro(registro: Registro) {
+    fun eliminarRegistro(
+        registro: Registro
+    ) {
 
-        registros.remove(registro)
+        viewModelScope.launch {
 
-        guardar()
+            repository.eliminar(
+                RegistroEntity(
+                    idRegistro =
+                        registro.idRegistro,
+                    idUsuario =
+                        registro.idUsuario,
+                    idAmbito =
+                        registro.idAmbito,
+                    fechaHora =
+                        registro.fechaHora,
+                    estadoSincronizacion =
+                        registro.estadoSincronizacion
+                )
+            )
 
-        mensaje = "Registro eliminado correctamente"
+            mensaje =
+                "Registro eliminado correctamente"
+        }
     }
 
     fun modificarRegistro(
@@ -131,65 +229,65 @@ class AdminViewModel(
         nuevoEstado: String
     ): Boolean {
 
-        if (!validaciones.validarEstado(nuevoEstado)) {
-            mensaje = "Seleccione un estado válido"
+        if (
+            !validaciones.validarEstado(
+                nuevoEstado
+            )
+        ) {
+
+            mensaje =
+                "Seleccione un estado válido"
+
             return false
         }
 
-        val posicion = registros.indexOf(registro)
+        val registroActualizado =
+            RegistroEntity(
+                idRegistro =
+                    registro.idRegistro,
+                idUsuario =
+                    registro.idUsuario,
+                idAmbito =
+                    registro.idAmbito,
+                fechaHora =
+                    registro.fechaHora,
+                estadoSincronizacion =
+                    nuevoEstado
+            )
 
-        if (posicion == -1) {
-            mensaje = "No se encontró el registro"
-            return false
+        viewModelScope.launch {
+
+            repository.actualizar(
+                registroActualizado
+            )
+
+            mensaje =
+                "Registro actualizado correctamente"
         }
-
-        registros[posicion] = registro.copy(
-            estadoSincronizacion = nuevoEstado
-        )
-
-        guardar()
-
-        mensaje = "Registro actualizado correctamente"
 
         return true
     }
 
-    private fun obtenerSiguienteId(): Int {
-
-        var mayorId = 0
-
-        for (registro in registros) {
-
-            if (registro.idRegistro > mayorId) {
-                mayorId = registro.idRegistro
-            }
-        }
-
-        return mayorId + 1
-    }
-
-    private fun guardar() {
-
-        repository.guardarRegistros(
-            registros
-        )
-    }
-
-    fun actualizarFoto(bitmap: Bitmap?) {
+    fun actualizarFoto(
+        bitmap: Bitmap?
+    ) {
 
         if (bitmap != null) {
 
             fotoPerfil = bitmap
 
-            mensaje = "Foto de perfil actualizada correctamente"
+            mensaje =
+                "Foto de perfil actualizada correctamente"
 
         } else {
 
-            mensaje = "No se pudo obtener la fotografía"
+            mensaje =
+                "No se pudo obtener la fotografía"
         }
     }
 
     fun limpiarMensaje() {
+
         mensaje = ""
     }
 }

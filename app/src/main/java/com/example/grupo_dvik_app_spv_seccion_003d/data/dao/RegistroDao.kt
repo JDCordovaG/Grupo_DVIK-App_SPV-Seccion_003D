@@ -1,10 +1,10 @@
 package com.example.grupo_dvik_app_spv_seccion_003d.data.dao
 
-import androidx.room3.Dao
-import androidx.room3.Delete
-import androidx.room3.Insert
-import androidx.room3.Query
-import androidx.room3.Update
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.Query
+import androidx.room.Update
 import com.example.grupo_dvik_app_spv_seccion_003d.data.entity.RegistroEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -35,4 +35,7 @@ interface RegistroDao {
     suspend fun obtenerPorId(
         id: Int
     ): RegistroEntity?
+
+    @Query("SELECT COUNT(*) FROM registros")
+    suspend fun contar(): Int
 }
