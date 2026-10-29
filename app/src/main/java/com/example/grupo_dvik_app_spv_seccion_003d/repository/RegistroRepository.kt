@@ -1,11 +1,23 @@
 package com.example.grupo_dvik_app_spv_seccion_003d.repository
 
-import com.example.grupo_dvik_app_spv_seccion_003d.data.dao.RegistroDao
+import android.content.Context
+import androidx.room.Room
+import com.example.grupo_dvik_app_spv_seccion_003d.data.database.AppDatabase
 import com.example.grupo_dvik_app_spv_seccion_003d.data.entity.RegistroEntity
 
 class RegistroRepository(
-    private val dao: RegistroDao
+    context: Context
 ) {
+
+    private val database =
+        Room.databaseBuilder(
+            context.applicationContext,
+            AppDatabase::class.java,
+            "mente_en_equilibrio.db"
+        ).build()
+
+    private val dao =
+        database.registroDao()
 
     val registros =
         dao.observarTodos()
@@ -33,5 +45,10 @@ class RegistroRepository(
     ): RegistroEntity? {
 
         return dao.obtenerPorId(id)
+    }
+
+    suspend fun contar(): Int {
+
+        return dao.contar()
     }
 }
