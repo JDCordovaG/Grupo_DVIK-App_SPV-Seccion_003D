@@ -1,3 +1,4 @@
+
 package com.example.grupo_dvik_app_spv_seccion_003d.viewmodel
 
 import android.app.Application
@@ -156,7 +157,19 @@ class AdminViewModel(
         ) {
 
             mensaje =
-                "La fecha y hora deben tener formato dd/MM/yyyy HH:mm"
+                "Ingrese una fecha y hora valida"
+
+            return false
+        }
+
+        if (
+            !validaciones.validarFechaActualOFutura(
+                fechaHora
+            )
+        ) {
+
+            mensaje =
+                "La fecha y hora no pueden ser anteriores al momento actual"
 
             return false
         }

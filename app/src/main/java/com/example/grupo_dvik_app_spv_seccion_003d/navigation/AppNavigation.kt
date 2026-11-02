@@ -1,5 +1,10 @@
+
 package com.example.grupo_dvik_app_spv_seccion_003d.navigation
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,14 +47,70 @@ fun AppNavigation() {
 
         composable("admin") {
 
+            var mostrarConfirmacion by remember {
+                mutableStateOf(false)
+            }
+
+            BackHandler(
+                enabled = !mostrarConfirmacion
+            ) {
+                mostrarConfirmacion = true
+            }
+
             AdminScreen(
                 nombreUsuario = nombreUsuario,
                 onVolver = {
-
-                    navController
-                        .popBackStack()
+                    mostrarConfirmacion = true
                 }
             )
+
+            if (mostrarConfirmacion) {
+
+                AlertDialog(
+                    onDismissRequest = {
+                        mostrarConfirmacion = false
+                    },
+
+                    title = {
+                        Text(
+                            "¿Volver al inicio de sesión?"
+                        )
+                    },
+
+                    text = {
+                        Text(
+                            "¿Estás seguro de que deseas volver a la pantalla de inicio de sesión?"
+                        )
+                    },
+
+                    confirmButton = {
+
+                        TextButton(
+                            onClick = {
+
+                                mostrarConfirmacion = false
+
+                                navController.popBackStack()
+
+                                nombreUsuario = ""
+                            }
+                        ) {
+                            Text("Sí, volver")
+                        }
+                    },
+
+                    dismissButton = {
+
+                        TextButton(
+                            onClick = {
+                                mostrarConfirmacion = false
+                            }
+                        ) {
+                            Text("Cancelar")
+                        }
+                    }
+                )
+            }
         }
     }
 }

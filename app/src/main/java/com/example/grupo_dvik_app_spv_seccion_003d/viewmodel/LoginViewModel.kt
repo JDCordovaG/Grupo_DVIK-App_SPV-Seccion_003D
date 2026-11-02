@@ -1,3 +1,4 @@
+
 package com.example.grupo_dvik_app_spv_seccion_003d.viewmodel
 
 import androidx.lifecycle.ViewModel
@@ -12,8 +13,24 @@ class LoginViewModel : ViewModel() {
         contrasena: String
     ): String {
 
+        if (nombre.isBlank()) {
+            return "El usuario es obligatorio"
+        }
+
+        if (nombre.any { it.isWhitespace() }) {
+            return "El usuario no debe contener espacios"
+        }
+
+        if (nombre.contains(".")) {
+            return "El usuario no debe contener puntos (.)"
+        }
+
+        if (nombre.contains("-")) {
+            return "El usuario no debe contener guiones (-)"
+        }
+
         if (!validaciones.validarNombre(nombre)) {
-            return "El nombre es obligatorio"
+            return "El usuario solo puede contener letras y números"
         }
 
         if (!validaciones.validarContrasena(contrasena)) {

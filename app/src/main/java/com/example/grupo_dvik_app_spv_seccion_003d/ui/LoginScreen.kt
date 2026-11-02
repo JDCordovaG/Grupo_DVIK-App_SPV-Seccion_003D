@@ -1,3 +1,4 @@
+
 package com.example.grupo_dvik_app_spv_seccion_003d.ui
 
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +12,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,6 +41,10 @@ fun LoginScreen(
 
     var contrasena by remember {
         mutableStateOf("")
+    }
+
+    var mostrarContrasena by remember {
+        mutableStateOf(false)
     }
 
     var mensaje by remember {
@@ -132,8 +139,34 @@ fun LoginScreen(
                 Text("Contraseña")
             },
             singleLine = true,
+
             visualTransformation =
-                PasswordVisualTransformation(),
+                if (mostrarContrasena) {
+                    VisualTransformation.None
+                } else {
+                    PasswordVisualTransformation()
+                },
+
+            trailingIcon = {
+
+                TextButton(
+                    onClick = {
+                        mostrarContrasena =
+                            !mostrarContrasena
+                    }
+                ) {
+
+                    Text(
+                        text =
+                            if (mostrarContrasena) {
+                                "Ocultar"
+                            } else {
+                                "Mostrar"
+                            }
+                    )
+                }
+            },
+
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
