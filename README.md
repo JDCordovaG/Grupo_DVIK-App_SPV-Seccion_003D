@@ -1,33 +1,109 @@
 ## Grupo_DVIK-App_SPV-Seccion_003D
 
-# Nombre del proyecto:
-Proyecto Semestral
+#  Mente en Equilibrio
 
-# Integrantes:
+Aplicación móvil desarrollada para la asignatura **DSY1105 – Desarrollo de Aplicaciones Móviles**.
 
-- Integrante 1: Juan David Cordova
-- Integrante 2: Kevin Reyes
-- Integrante 3: Vicente Pizarro 
-- Integrante 4: Ignacio Castro
+El proyecto fue desarrollado utilizando **Kotlin y Jetpack Compose**, aplicando navegación entre pantallas, validaciones, arquitectura basada en ViewModel, persistencia local con Room/SQLite, manejo de estados con StateFlow y utilización de un recurso nativo mediante la cámara del dispositivo.
 
-# Problemática:
-Actualmente, los registros personales pueden encontrarse dispersos entre notas, recordatorios y distintas aplicaciones, especialmente en ámbitos como neurodesarrollo, DBT, estado de ánimo y adicciones e impulsos. Esta fragmentación dificulta mantener un seguimiento personal ordenado y puede generar omisiones en los registros.
+---
 
-# Objetivo general:
-Desarrollar una aplicación móvil que permita centralizar y organizar registros personales de autorregistro en los ámbitos de neurodesarrollo, DBT, estado de ánimo y adicciones e impulsos, facilitando la creación, consulta y gestión de registros mediante una interfaz simple y accesible.
+##  Integrantes
 
-# Tecnologías consideradas:
+- Juan David Cordova
+- Vicente Pizarro
+- Kevin Reyes
+- Ignacio Castro
 
-- Android
+---
+
+#  Objetivo de la aplicación
+
+**Mente en Equilibrio** es una aplicación de autorregistro personal que permite almacenar información relacionada con distintos ámbitos.
+
+Los ámbitos disponibles son:
+
+- Neurodesarrollo
+- DBT
+- Estado de Ánimo
+- Adicciones e Impulsos
+
+Cada registro contiene:
+
+- ID del registro
+- ID del usuario
+- Ámbito
+- Fecha y hora
+- Estado de sincronización
+
+Los estados disponibles son:
+
+- Pendiente
+- Sincronizado
+
+> Actualmente la aplicación utiliza persistencia local.  
+> El estado de sincronización corresponde a un dato almacenado en el registro y no representa una sincronización real con un servidor externo.
+
+---
+
+#  Tecnologías utilizadas
+
 - Kotlin
+- Android Studio
 - Jetpack Compose
-- Arquitectura MVVM
-- Persistencia local para funcionamiento offline
-- API REST ficticia para sincronización de datos
-- GitHub para control de versiones
+- Material 3
+- Navigation Compose
+- ViewModel
+- StateFlow
+- Flow
+- Room
+- SQLite
+- Coroutines
+- Activity Result API
+- Git
+- GitHub
 
-# Alcance inicial:
-La aplicación permitirá realizar registros en los cuatro ámbitos definidos, consultar un historial cronológico, modificar y eliminar registros propios, almacenar información localmente y sincronizar registros pendientes con una API REST ficticia cuando exista conexión. También se consideran recordatorios locales y una sección de recursos psicoeducativos.
+---
 
-# Consideraciones:
-El proyecto utilizará exclusivamente datos sintéticos o ficticios. La aplicación no realizará diagnósticos, tratamientos ni prescripciones médicas, y no se conectará con fichas clínicas o sistemas de salud reales.
+#  Funcionalidades principales
+
+La aplicación permite:
+
+- Iniciar sesión mediante nombre y contraseña.
+- Validar la información ingresada.
+- Navegar entre Login y Administración.
+- Crear nuevos registros.
+- Consultar registros almacenados.
+- Editar registros.
+- Eliminar registros.
+- Confirmar antes de eliminar información.
+- Seleccionar un ámbito.
+- Seleccionar un estado.
+- Registrar fecha y hora.
+- Mantener información persistente con Room.
+- Mostrar mensajes de respuesta al usuario.
+- Mostrar animaciones simples.
+- Tomar una fotografía utilizando la cámara.
+- Mostrar el nombre y fotografía del usuario en el perfil.
+- Utilizar un icono personalizado para la aplicación.
+
+---
+
+#  Arquitectura general
+
+El proyecto mantiene una separación de responsabilidades.
+
+```text
+Interfaz de usuario
+        ↓
+ViewModel
+        ↓
+Validaciones
+        ↓
+Repository
+        ↓
+DAO
+        ↓
+Room
+        ↓
+SQLite
