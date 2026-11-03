@@ -109,4 +109,18 @@ class UsuarioRepository(
 
         return dao.obtenerPorId(id)
     }
+
+    suspend fun actualizarFotoRuta(
+        idUsuario: Int,
+        ruta: String
+    ): Boolean {
+
+        val actualizados =
+            dao.actualizarFotoRuta(
+                idUsuario,
+                ruta
+            )
+
+        return actualizados > 0
+    }
 }

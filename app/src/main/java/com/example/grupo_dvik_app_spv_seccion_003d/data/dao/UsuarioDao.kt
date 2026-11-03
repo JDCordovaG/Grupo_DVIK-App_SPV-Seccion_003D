@@ -1,3 +1,4 @@
+
 package com.example.grupo_dvik_app_spv_seccion_003d.data.dao
 
 import androidx.room.Dao
@@ -42,6 +43,18 @@ interface UsuarioDao {
         """
     )
     suspend fun obtenerMaximoIdUsado(): Int
+
+    @Query(
+        """
+        UPDATE usuarios
+        SET fotoRuta = :ruta
+        WHERE idUsuario = :idUsuario
+        """
+    )
+    suspend fun actualizarFotoRuta(
+        idUsuario: Int,
+        ruta: String
+    ): Int
 
     @Transaction
     suspend fun insertarNuevo(

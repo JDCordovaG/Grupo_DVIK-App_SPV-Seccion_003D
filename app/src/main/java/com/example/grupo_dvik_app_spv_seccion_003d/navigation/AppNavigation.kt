@@ -1,10 +1,6 @@
 
 package com.example.grupo_dvik_app_spv_seccion_003d.navigation
 
-import androidx.activity.compose.BackHandler
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,7 +10,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.AdminScreen
+import com.example.grupo_dvik_app_spv_seccion_003d.ui.HomeScreen
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.LoginScreen
+import com.example.grupo_dvik_app_spv_seccion_003d.ui.PerfilScreen
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.RegistroUsuarioScreen
 
 @Composable
@@ -44,9 +42,12 @@ fun AppNavigation() {
                     idUsuarioActual = id
                     nombreUsuario = nombre
 
-                    navController.navigate(
-                        "admin"
-                    )
+                    navController.navigate("home") {
+
+                        popUpTo("login") {
+                            inclusive = true
+                        }
+                    }
                 },
 
                 onCrearCuenta = {
@@ -67,74 +68,62 @@ fun AppNavigation() {
             )
         }
 
+        composable("home") {
+
+            HomeScreen(
+                nombreUsuario = nombreUsuario,
+
+                onMiPerfil = {
+
+                    navController.navigate("perfil")
+                },
+
+                onMisRegistros = {
+
+                    navController.navigate("admin")
+                },
+
+                onCerrarSesion = {
+
+                    nombreUsuario = ""
+                    idUsuarioActual = 0
+
+                    navController.navigate("login") {
+
+                        popUpTo("home") {
+                            inclusive = true
+                        }
+
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        composable("perfil") {
+
+            PerfilScreen(
+                nombreUsuario = nombreUsuario,
+                idUsuario = idUsuarioActual,
+
+                onVolver = {
+
+                    navController.popBackStack()
+                }
+            )
+        }
+
         composable("admin") {
-
-            var mostrarConfirmacion by remember {
-                mutableStateOf(false)
-            }
-
-            BackHandler(
-                enabled = !mostrarConfirmacion
-            ) {
-                mostrarConfirmacion = true
-            }
 
             AdminScreen(
                 nombreUsuario = nombreUsuario,
                 idUsuario = idUsuarioActual,
+
                 onVolver = {
-                    mostrarConfirmacion = true
+
+                    navController.popBackStack()
                 }
             )
-
-            if (mostrarConfirmacion) {
-
-                AlertDialog(
-                    onDismissRequest = {
-                        mostrarConfirmacion = false
-                    },
-
-                    title = {
-                        Text(
-                            "¿Volver al inicio de sesión?"
-                        )
-                    },
-
-                    text = {
-                        Text(
-                            "¿Estás seguro de que deseas volver a la pantalla de inicio de sesión?"
-                        )
-                    },
-
-                    confirmButton = {
-
-                        TextButton(
-                            onClick = {
-
-                                mostrarConfirmacion = false
-
-                                navController.popBackStack()
-
-                                nombreUsuario = ""
-                                idUsuarioActual = 0
-                            }
-                        ) {
-                            Text("Sí, volver")
-                        }
-                    },
-
-                    dismissButton = {
-
-                        TextButton(
-                            onClick = {
-                                mostrarConfirmacion = false
-                            }
-                        ) {
-                            Text("Cancelar")
-                        }
-                    }
-                )
-            }
         }
     }
 }

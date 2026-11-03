@@ -1,8 +1,6 @@
 
 package com.example.grupo_dvik_app_spv_seccion_003d.ui
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -43,7 +41,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.grupo_dvik_app_spv_seccion_003d.model.Ambito
 import com.example.grupo_dvik_app_spv_seccion_003d.model.Registro
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.components.ConfirmarEliminacionDialog
-import com.example.grupo_dvik_app_spv_seccion_003d.ui.components.FotoPerfilCard
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.components.RegistroCard
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.components.SelectorAmbito
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.components.SelectorEstado
@@ -66,31 +63,19 @@ private fun formatearFechaHora(
 
         resultado += numeros[i]
 
-        if (
-            i == 1 &&
-            numeros.length > 2
-        ) {
+        if (i == 1 && numeros.length > 2) {
             resultado += "/"
         }
 
-        if (
-            i == 3 &&
-            numeros.length > 4
-        ) {
+        if (i == 3 && numeros.length > 4) {
             resultado += "/"
         }
 
-        if (
-            i == 7 &&
-            numeros.length > 8
-        ) {
+        if (i == 7 && numeros.length > 8) {
             resultado += " "
         }
 
-        if (
-            i == 9 &&
-            numeros.length > 10
-        ) {
+        if (i == 9 && numeros.length > 10) {
             resultado += ":"
         }
     }
@@ -109,7 +94,6 @@ fun AdminScreen(
     val registros by
     adminViewModel.registros.collectAsState()
 
-    // Seleccionar el usuario que inicio sesion
     LaunchedEffect(idUsuario) {
 
         adminViewModel.seleccionarUsuario(
@@ -117,24 +101,10 @@ fun AdminScreen(
         )
     }
 
-    // Mostrar solo los registros de este usuario
     val registrosUsuario = registros.filter {
         it.idUsuario == idUsuario
     }
 
-    // Camara para la fotografia de perfil
-    val cameraLauncher =
-        rememberLauncherForActivityResult(
-            contract =
-                ActivityResultContracts.TakePicturePreview()
-        ) { bitmap ->
-
-            adminViewModel.actualizarFoto(
-                bitmap
-            )
-        }
-
-    // Variables para editar y eliminar
     var registroEditar by remember {
         mutableStateOf<Registro?>(null)
     }
@@ -147,7 +117,6 @@ fun AdminScreen(
         mutableStateOf("")
     }
 
-    // Variables para crear un registro
     var mostrarNuevoRegistro by remember {
         mutableStateOf(false)
     }
@@ -157,16 +126,13 @@ fun AdminScreen(
     }
 
     var fechaHora by remember {
-        mutableStateOf(
-            TextFieldValue("")
-        )
+        mutableStateOf(TextFieldValue(""))
     }
 
     var estadoRegistro by remember {
         mutableStateOf("")
     }
 
-    // Mensajes de validacion
     var errorNuevoRegistro by remember {
         mutableStateOf("")
     }
@@ -175,10 +141,7 @@ fun AdminScreen(
         mutableStateOf("")
     }
 
-    // Limpiar mensajes despues de unos segundos
-    LaunchedEffect(
-        adminViewModel.mensaje
-    ) {
+    LaunchedEffect(adminViewModel.mensaje) {
 
         if (
             adminViewModel.mensaje.isNotEmpty() &&
@@ -199,10 +162,10 @@ fun AdminScreen(
     ) {
 
         Text(
-            text = "Panel Administrador",
-            style =
-                MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
+            text = "Mis registros",
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
         )
 
         Spacer(
@@ -210,38 +173,19 @@ fun AdminScreen(
         )
 
         Text(
-            text = "Gestion de Historial"
+            text = "Historial personal de $nombreUsuario"
         )
 
         Spacer(
-            modifier = Modifier.height(12.dp)
+            modifier = Modifier.height(16.dp)
         )
 
-        // Fotografia y nombre del usuario
-        FotoPerfilCard(
-            nombreUsuario = nombreUsuario,
-            foto = adminViewModel.fotoPerfil,
-            onTomarFoto = {
-
-                cameraLauncher.launch(null)
-            }
-        )
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
-
-        // Botones principales
         Row(
-            horizontalArrangement =
-                Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
 
             Button(
-                onClick = {
-
-                    onVolver()
-                }
+                onClick = onVolver
             ) {
 
                 Text("Volver")
@@ -264,7 +208,6 @@ fun AdminScreen(
             modifier = Modifier.height(12.dp)
         )
 
-        // Mensaje de operaciones realizadas
         AnimatedVisibility(
             visible =
                 adminViewModel.mensaje.isNotEmpty() &&
@@ -296,8 +239,7 @@ fun AdminScreen(
 
                 Text(
                     text = adminViewModel.mensaje,
-                    color =
-                        MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(12.dp)
                 )
             }
@@ -313,7 +255,6 @@ fun AdminScreen(
             modifier = Modifier.height(6.dp)
         )
 
-        // Listado de registros del usuario
         LazyColumn {
 
             if (registrosUsuario.isEmpty()) {
@@ -363,7 +304,7 @@ fun AdminScreen(
         }
     }
 
-    // Formulario para crear un nuevo registro
+    // Crear registro
     if (mostrarNuevoRegistro) {
 
         AlertDialog(
@@ -383,15 +324,11 @@ fun AdminScreen(
 
                 Column {
 
-                    // El ID del usuario se obtiene
-                    // automaticamente de la sesion
-
                     SelectorAmbito(
                         ambitoSeleccionado =
                             ambitoSeleccionado,
 
                         onAmbitoSeleccionado = {
-
                             ambitoSeleccionado = it
                         }
                     )
@@ -430,14 +367,12 @@ fun AdminScreen(
 
                         supportingText = {
 
-                            Text("Escriba solo los numeros")
+                            Text("Escriba solo los números")
                         },
 
-                        keyboardOptions =
-                            KeyboardOptions(
-                                keyboardType =
-                                    KeyboardType.Number
-                            ),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number
+                        ),
 
                         singleLine = true
                     )
@@ -451,12 +386,10 @@ fun AdminScreen(
                             estadoRegistro,
 
                         onEstadoSeleccionado = {
-
                             estadoRegistro = it
                         }
                     )
 
-                    // Mostrar errores de validacion
                     if (errorNuevoRegistro.isNotEmpty()) {
 
                         Spacer(
@@ -465,8 +398,7 @@ fun AdminScreen(
 
                         Text(
                             text = errorNuevoRegistro,
-                            color =
-                                MaterialTheme.colorScheme.error
+                            color = MaterialTheme.colorScheme.error
                         )
                     }
                 }
@@ -479,20 +411,16 @@ fun AdminScreen(
 
                         val creado =
                             adminViewModel.crearRegistro(
-
                                 ambitoSeleccionado
                                     ?.id
                                     ?.toString()
                                     ?: "",
-
                                 fechaHora.text,
-
                                 estadoRegistro
                             )
 
                         if (creado) {
 
-                            // Limpiar formulario
                             ambitoSeleccionado = null
 
                             fechaHora = TextFieldValue("")
@@ -534,7 +462,7 @@ fun AdminScreen(
         )
     }
 
-    // Formulario para editar un registro
+    // Editar registro
     if (registroEditar != null) {
 
         AlertDialog(
@@ -555,8 +483,7 @@ fun AdminScreen(
                 Column {
 
                     Text(
-                        text =
-                            "Seleccione el nuevo estado del registro."
+                        "Seleccione el nuevo estado del registro."
                     )
 
                     Spacer(
@@ -564,11 +491,9 @@ fun AdminScreen(
                     )
 
                     SelectorEstado(
-                        estadoSeleccionado =
-                            nuevoEstado,
+                        estadoSeleccionado = nuevoEstado,
 
                         onEstadoSeleccionado = {
-
                             nuevoEstado = it
                         }
                     )
@@ -581,8 +506,7 @@ fun AdminScreen(
 
                         Text(
                             text = errorEditarRegistro,
-                            color =
-                                MaterialTheme.colorScheme.error
+                            color = MaterialTheme.colorScheme.error
                         )
                     }
                 }
@@ -641,7 +565,7 @@ fun AdminScreen(
         )
     }
 
-    // Confirmacion para eliminar un registro
+    // Eliminar registro
     val registroAEliminar = registroEliminar
 
     if (registroAEliminar != null) {
