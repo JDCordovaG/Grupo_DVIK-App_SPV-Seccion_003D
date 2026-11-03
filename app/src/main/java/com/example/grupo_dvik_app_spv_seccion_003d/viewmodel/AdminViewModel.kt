@@ -12,10 +12,10 @@ import com.example.grupo_dvik_app_spv_seccion_003d.data.entity.RegistroEntity
 import com.example.grupo_dvik_app_spv_seccion_003d.model.Registro
 import com.example.grupo_dvik_app_spv_seccion_003d.repository.RegistroRepository
 import com.example.grupo_dvik_app_spv_seccion_003d.validation.Validaciones
-import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class AdminViewModel(
@@ -28,34 +28,15 @@ class AdminViewModel(
     private val validaciones =
         Validaciones()
 
+    private val _registros =
+        MutableStateFlow<List<Registro>>(emptyList())
+
     val registros: StateFlow<List<Registro>> =
-        repository.registros
-            .map { lista ->
+        _registros
 
-                lista.map { registro ->
+    private var usuarioActual = 0
 
-                    Registro(
-                        idRegistro =
-                            registro.idRegistro,
-                        idUsuario =
-                            registro.idUsuario,
-                        idAmbito =
-                            registro.idAmbito,
-                        fechaHora =
-                            registro.fechaHora,
-                        estadoSincronizacion =
-                            registro.estadoSincronizacion
-                    )
-                }
-            }
-            .stateIn(
-                scope = viewModelScope,
-                started =
-                    SharingStarted.WhileSubscribed(
-                        5_000
-                    ),
-                initialValue = emptyList()
-            )
+    private var trabajoObservacion: Job? = null
 
     var fotoPerfil by
     mutableStateOf<Bitmap?>(null)
@@ -65,63 +46,63 @@ class AdminViewModel(
     mutableStateOf("")
         private set
 
-    init {
+    fun seleccionarUsuario(
+        idUsuario: Int
+    ) {
 
-        viewModelScope.launch {
-
-            if (repository.contar() == 0) {
-
-                repository.insertar(
-                    RegistroEntity(
-                        idUsuario = 1,
-                        idAmbito = 1,
-                        fechaHora =
-                            "28/09/2026 10:30",
-                        estadoSincronizacion =
-                            "Sincronizado"
-                    )
-                )
-
-                repository.insertar(
-                    RegistroEntity(
-                        idUsuario = 1,
-                        idAmbito = 2,
-                        fechaHora =
-                            "28/09/2026 11:15",
-                        estadoSincronizacion =
-                            "Pendiente"
-                    )
-                )
-
-                repository.insertar(
-                    RegistroEntity(
-                        idUsuario = 2,
-                        idAmbito = 3,
-                        fechaHora =
-                            "28/09/2026 12:00",
-                        estadoSincronizacion =
-                            "Sincronizado"
-                    )
-                )
-            }
+        if (idUsuario <= 0) {
+            return
         }
+
+        if (usuarioActual == idUsuario) {
+            return
+        }
+
+        trabajoObservacion?.cancel()
+
+        usuarioActual = idUsuario
+
+        _registros.value = emptyList()
+
+        trabajoObservacion =
+            viewModelScope.launch {
+
+                repository
+                    .observarPorUsuario(idUsuario)
+                    .collect { lista ->
+
+                        _registros.value =
+                            lista.map { registro ->
+
+                                Registro(
+                                    idRegistro =
+                                        registro.idRegistro,
+                                    idUsuario =
+                                        registro.idUsuario,
+                                    idAmbito =
+                                        registro.idAmbito,
+                                    fechaHora =
+                                        registro.fechaHora,
+                                    estadoSincronizacion =
+                                        registro.estadoSincronizacion
+                                )
+                            }
+                    }
+            }
     }
 
     fun crearRegistro(
-        idUsuarioTexto: String,
         idAmbitoTexto: String,
         fechaHora: String,
         estado: String
     ): Boolean {
 
-        if (
-            !validaciones.validarNumero(
-                idUsuarioTexto
-            )
-        ) {
+        val idActual = usuarioActual
+
+        if (idActual <= 0) {
 
             mensaje =
-                "Debe ingresar un usuario válido"
+                "Debe iniciar sesión para crear registros"
 
             return false
         }
@@ -188,14 +169,11 @@ class AdminViewModel(
 
         val nuevoRegistro =
             RegistroEntity(
-                idUsuario =
-                    idUsuarioTexto.toInt(),
+                idUsuario = idActual,
                 idAmbito =
                     idAmbitoTexto.toInt(),
-                fechaHora =
-                    fechaHora,
-                estadoSincronizacion =
-                    estado
+                fechaHora = fechaHora,
+                estadoSincronizacion = estado
             )
 
         viewModelScope.launch {
@@ -215,25 +193,33 @@ class AdminViewModel(
         registro: Registro
     ) {
 
-        viewModelScope.launch {
+        val idActual = usuarioActual
 
-            repository.eliminar(
-                RegistroEntity(
-                    idRegistro =
-                        registro.idRegistro,
-                    idUsuario =
-                        registro.idUsuario,
-                    idAmbito =
-                        registro.idAmbito,
-                    fechaHora =
-                        registro.fechaHora,
-                    estadoSincronizacion =
-                        registro.estadoSincronizacion
-                )
-            )
+        if (
+            idActual <= 0 ||
+            registro.idUsuario != idActual
+        ) {
 
             mensaje =
-                "Registro eliminado correctamente"
+                "No puede eliminar un registro de otra cuenta"
+
+            return
+        }
+
+        viewModelScope.launch {
+
+            val eliminado =
+                repository.eliminarDelUsuario(
+                    registro.idRegistro,
+                    idActual
+                )
+
+            mensaje =
+                if (eliminado) {
+                    "Registro eliminado correctamente"
+                } else {
+                    "No se pudo eliminar el registro"
+                }
         }
     }
 
@@ -241,6 +227,19 @@ class AdminViewModel(
         registro: Registro,
         nuevoEstado: String
     ): Boolean {
+
+        val idActual = usuarioActual
+
+        if (
+            idActual <= 0 ||
+            registro.idUsuario != idActual
+        ) {
+
+            mensaje =
+                "No puede modificar un registro de otra cuenta"
+
+            return false
+        }
 
         if (
             !validaciones.validarEstado(
@@ -254,28 +253,21 @@ class AdminViewModel(
             return false
         }
 
-        val registroActualizado =
-            RegistroEntity(
-                idRegistro =
-                    registro.idRegistro,
-                idUsuario =
-                    registro.idUsuario,
-                idAmbito =
-                    registro.idAmbito,
-                fechaHora =
-                    registro.fechaHora,
-                estadoSincronizacion =
-                    nuevoEstado
-            )
-
         viewModelScope.launch {
 
-            repository.actualizar(
-                registroActualizado
-            )
+            val modificado =
+                repository.actualizarEstadoDelUsuario(
+                    registro.idRegistro,
+                    idActual,
+                    nuevoEstado
+                )
 
             mensaje =
-                "Registro actualizado correctamente"
+                if (modificado) {
+                    "Registro actualizado correctamente"
+                } else {
+                    "No se pudo actualizar el registro"
+                }
         }
 
         return true

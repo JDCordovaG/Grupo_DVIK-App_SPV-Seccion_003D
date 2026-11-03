@@ -31,7 +31,8 @@ import com.example.grupo_dvik_app_spv_seccion_003d.viewmodel.LoginViewModel
 
 @Composable
 fun LoginScreen(
-    onLoginCorrecto: (String) -> Unit,
+    onLoginCorrecto: (Int, String) -> Unit,
+    onCrearCuenta: () -> Unit,
     loginViewModel: LoginViewModel = viewModel()
 ) {
 
@@ -47,10 +48,6 @@ fun LoginScreen(
         mutableStateOf(false)
     }
 
-    var mensaje by remember {
-        mutableStateOf("")
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -62,39 +59,27 @@ fun LoginScreen(
     ) {
 
         Text(
-            text =
-                "Grupo_DVIK-App_SPV-Seccion_003D",
+            text = "Grupo_DVIK-App_SPV-Seccion_003D",
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
-            color =
-                MaterialTheme
-                    .colorScheme
-                    .secondary
+            color = MaterialTheme.colorScheme.secondary
         )
 
         Spacer(
-            modifier =
-                Modifier.height(24.dp)
+            modifier = Modifier.height(24.dp)
         )
 
         Text(
             text = "Mente en Equilibrio",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            color =
-                MaterialTheme
-                    .colorScheme
-                    .primary
+            color = MaterialTheme.colorScheme.primary
         )
 
         Text(
-            text =
-                "Tu espacio de autorregistro",
+            text = "Tu espacio de autorregistro",
             fontSize = 16.sp,
-            color =
-                MaterialTheme
-                    .colorScheme
-                    .onSurfaceVariant,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(
                 top = 8.dp,
                 bottom = 32.dp
@@ -102,22 +87,19 @@ fun LoginScreen(
         )
 
         Text(
-            text =
-                "Ingresa tus datos para continuar",
+            text = "Ingresa tus datos para continuar",
             fontSize = 14.sp,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(
-                    bottom = 8.dp
-                ),
-            textAlign =
-                TextAlign.Center
+                .padding(bottom = 8.dp),
+            textAlign = TextAlign.Center
         )
 
         OutlinedTextField(
             value = nombre,
             onValueChange = {
                 nombre = it
+                loginViewModel.limpiarMensaje()
             },
             label = {
                 Text("Nombre")
@@ -125,28 +107,25 @@ fun LoginScreen(
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(
-                    bottom = 12.dp
-                )
+                .padding(bottom = 12.dp)
         )
 
         OutlinedTextField(
             value = contrasena,
             onValueChange = {
                 contrasena = it
+                loginViewModel.limpiarMensaje()
             },
             label = {
                 Text("Contraseña")
             },
             singleLine = true,
-
             visualTransformation =
                 if (mostrarContrasena) {
                     VisualTransformation.None
                 } else {
                     PasswordVisualTransformation()
                 },
-
             trailingIcon = {
 
                 TextButton(
@@ -155,92 +134,84 @@ fun LoginScreen(
                             !mostrarContrasena
                     }
                 ) {
-
                     Text(
-                        text =
-                            if (mostrarContrasena) {
-                                "Ocultar"
-                            } else {
-                                "Mostrar"
-                            }
+                        if (mostrarContrasena) {
+                            "Ocultar"
+                        } else {
+                            "Mostrar"
+                        }
                     )
                 }
             },
-
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(
-                    bottom = 16.dp
-                )
+                .padding(bottom = 16.dp)
         )
 
         Button(
             onClick = {
 
-                val resultado =
-                    loginViewModel
-                        .validarLogin(
-                            nombre,
-                            contrasena
-                        )
-
-                if (resultado == "OK") {
-
-                    mensaje = ""
+                loginViewModel.iniciarSesion(
+                    nombre,
+                    contrasena
+                ) { usuario ->
 
                     onLoginCorrecto(
-                        nombre.trim()
+                        usuario.idUsuario,
+                        usuario.nombreUsuario
                     )
-
-                } else {
-
-                    mensaje = resultado
                 }
             },
+            enabled = !loginViewModel.ingresando,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
         ) {
 
             Text(
-                text = "Ingresar",
+                text =
+                    if (loginViewModel.ingresando) {
+                        "Ingresando..."
+                    } else {
+                        "Ingresar"
+                    },
                 fontSize = 16.sp
             )
         }
 
-        if (mensaje.isNotEmpty()) {
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
+
+        TextButton(
+            onClick = onCrearCuenta,
+            enabled = !loginViewModel.ingresando
+        ) {
+            Text("Crear cuenta nueva")
+        }
+
+        if (loginViewModel.mensaje.isNotEmpty()) {
 
             Spacer(
-                modifier =
-                    Modifier.height(12.dp)
+                modifier = Modifier.height(12.dp)
             )
 
             Text(
-                text = mensaje,
-                color =
-                    MaterialTheme
-                        .colorScheme
-                        .error,
-                textAlign =
-                    TextAlign.Center
+                text = loginViewModel.mensaje,
+                color = MaterialTheme.colorScheme.error,
+                textAlign = TextAlign.Center
             )
         }
 
         Spacer(
-            modifier =
-                Modifier.height(24.dp)
+            modifier = Modifier.height(24.dp)
         )
 
         Text(
-            text =
-                "Esta aplicación utiliza datos ficticios de prueba. No reemplaza apoyo profesional.",
+            text = "Esta aplicación utiliza datos ficticios de prueba. No reemplaza apoyo profesional.",
             fontSize = 12.sp,
-            color =
-                MaterialTheme
-                    .colorScheme
-                    .onSurfaceVariant,
-            textAlign =
-                TextAlign.Center
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
         )
     }
 }

@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.AdminScreen
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.LoginScreen
+import com.example.grupo_dvik_app_spv_seccion_003d.ui.RegistroUsuarioScreen
 
 @Composable
 fun AppNavigation() {
@@ -26,6 +27,10 @@ fun AppNavigation() {
         mutableStateOf("")
     }
 
+    var idUsuarioActual by remember {
+        mutableStateOf(0)
+    }
+
     NavHost(
         navController = navController,
         startDestination = "login"
@@ -34,13 +39,30 @@ fun AppNavigation() {
         composable("login") {
 
             LoginScreen(
-                onLoginCorrecto = { nombre ->
+                onLoginCorrecto = { id, nombre ->
 
+                    idUsuarioActual = id
                     nombreUsuario = nombre
 
                     navController.navigate(
                         "admin"
                     )
+                },
+
+                onCrearCuenta = {
+
+                    navController.navigate(
+                        "registro_usuario"
+                    )
+                }
+            )
+        }
+
+        composable("registro_usuario") {
+
+            RegistroUsuarioScreen(
+                onVolver = {
+                    navController.popBackStack()
                 }
             )
         }
@@ -59,6 +81,7 @@ fun AppNavigation() {
 
             AdminScreen(
                 nombreUsuario = nombreUsuario,
+                idUsuario = idUsuarioActual,
                 onVolver = {
                     mostrarConfirmacion = true
                 }
@@ -93,6 +116,7 @@ fun AppNavigation() {
                                 navController.popBackStack()
 
                                 nombreUsuario = ""
+                                idUsuarioActual = 0
                             }
                         ) {
                             Text("Sí, volver")
