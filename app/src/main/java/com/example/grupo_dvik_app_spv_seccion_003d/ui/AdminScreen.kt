@@ -1,12 +1,5 @@
 package com.example.grupo_dvik_app_spv_seccion_003d.ui
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,15 +9,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -33,155 +24,57 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.grupo_dvik_app_spv_seccion_003d.model.Ambito
 import com.example.grupo_dvik_app_spv_seccion_003d.model.Registro
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.components.ConfirmarEliminacionDialog
-import com.example.grupo_dvik_app_spv_seccion_003d.ui.components.FotoPerfilCard
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.components.RegistroCard
-import com.example.grupo_dvik_app_spv_seccion_003d.ui.components.SelectorAmbito
-import com.example.grupo_dvik_app_spv_seccion_003d.ui.components.SelectorEstado
 import com.example.grupo_dvik_app_spv_seccion_003d.viewmodel.AdminViewModel
 import kotlinx.coroutines.delay
-
-private fun formatearFechaHora(
-    texto: String
-): String {
-
-    val numeros = texto
-        .filter {
-            it.isDigit()
-        }
-        .take(12)
-
-    var resultado = ""
-
-    for (i in numeros.indices) {
-
-        resultado += numeros[i]
-
-        if (
-            i == 1 &&
-            numeros.length > 2
-        ) {
-            resultado += "/"
-        }
-
-        if (
-            i == 3 &&
-            numeros.length > 4
-        ) {
-            resultado += "/"
-        }
-
-        if (
-            i == 7 &&
-            numeros.length > 8
-        ) {
-            resultado += " "
-        }
-
-        if (
-            i == 9 &&
-            numeros.length > 10
-        ) {
-            resultado += ":"
-        }
-    }
-
-    return resultado
-}
 
 @Composable
 fun AdminScreen(
     nombreUsuario: String,
+    idUsuario: Int,
     onVolver: () -> Unit,
+    onNuevoRegistro: () -> Unit,
+    onVerDetalle: (Int) -> Unit,
     adminViewModel: AdminViewModel = viewModel()
 ) {
 
-    val registros by
-    adminViewModel
-        .registros
-        .collectAsState()
+    val registros by adminViewModel.registros.collectAsState()
 
-    val cameraLauncher =
-        rememberLauncherForActivityResult(
-            contract =
-                ActivityResultContracts
-                    .TakePicturePreview()
-        ) { bitmap ->
+    LaunchedEffect(idUsuario) {
 
-            adminViewModel
-                .actualizarFoto(
-                    bitmap
-                )
-        }
+        adminViewModel.seleccionarUsuario(idUsuario)
+    }
 
-    var registroEditar by remember {
-        mutableStateOf<Registro?>(null)
+    var ambitoFiltro by remember {
+        mutableStateOf<Ambito?>(null)
     }
 
     var registroEliminar by remember {
         mutableStateOf<Registro?>(null)
     }
 
-    var nuevoEstado by remember {
-        mutableStateOf("")
+    val registrosFiltrados = registros.filter { registro ->
+
+        registro.idUsuario == idUsuario &&
+                (
+                        ambitoFiltro == null ||
+                                registro.idAmbito == ambitoFiltro?.id
+                        )
     }
 
-    var mostrarNuevoRegistro by remember {
-        mutableStateOf(false)
-    }
+    LaunchedEffect(adminViewModel.mensaje) {
 
-    var idUsuario by remember {
-        mutableStateOf("")
-    }
-
-    var ambitoSeleccionado by remember {
-        mutableStateOf<Ambito?>(null)
-    }
-
-    var fechaHora by remember {
-        mutableStateOf(
-            TextFieldValue("")
-        )
-    }
-
-    var estadoRegistro by remember {
-        mutableStateOf("")
-    }
-
-    var errorNuevoRegistro by remember {
-        mutableStateOf("")
-    }
-
-    var errorEditarRegistro by remember {
-        mutableStateOf("")
-    }
-
-    LaunchedEffect(
-        adminViewModel.mensaje
-    ) {
-
-        if (
-            adminViewModel
-                .mensaje
-                .isNotEmpty() &&
-            errorNuevoRegistro
-                .isEmpty() &&
-            errorEditarRegistro
-                .isEmpty()
-        ) {
+        if (adminViewModel.mensaje.isNotEmpty()) {
 
             delay(2500)
 
-            adminViewModel
-                .limpiarMensaje()
+            adminViewModel.limpiarMensaje()
         }
     }
 
@@ -192,652 +85,151 @@ fun AdminScreen(
     ) {
 
         Text(
-            text =
-                "Panel Administrador",
-            style =
-                MaterialTheme
-                    .typography
-                    .headlineMedium,
-            fontWeight =
-                FontWeight.Bold
+            text = "Mis registros",
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
         )
 
-        Spacer(
-            modifier =
-                Modifier.height(4.dp)
-        )
+        Spacer(Modifier.height(4.dp))
 
-        Text(
-            text =
-                "Gestión de Historial"
-        )
+        Text("Historial personal de $nombreUsuario")
 
-        Spacer(
-            modifier =
-                Modifier.height(12.dp)
-        )
-
-        FotoPerfilCard(
-            nombreUsuario =
-                nombreUsuario,
-            foto =
-                adminViewModel
-                    .fotoPerfil,
-            onTomarFoto = {
-
-                cameraLauncher
-                    .launch(null)
-            }
-        )
-
-        Spacer(
-            modifier =
-                Modifier.height(12.dp)
-        )
+        Spacer(Modifier.height(16.dp))
 
         Row(
             horizontalArrangement =
-                Arrangement
-                    .spacedBy(8.dp)
+                Arrangement.spacedBy(8.dp)
         ) {
 
             Button(
-                onClick = {
-
-                    onVolver()
-                }
+                onClick = onVolver
             ) {
 
-                Text(
-                    text =
-                        "Volver"
-                )
+                Text("Volver")
             }
 
             Button(
-                onClick = {
-
-                    errorNuevoRegistro =
-                        ""
-
-                    mostrarNuevoRegistro =
-                        true
-                }
+                onClick = onNuevoRegistro
             ) {
 
-                Text(
-                    text =
-                        "Nuevo registro"
+                Text("Nuevo registro")
+            }
+        }
+
+        Spacer(Modifier.height(16.dp))
+
+        Text(
+            text = "Filtrar por ámbito",
+            fontWeight = FontWeight.Bold
+        )
+
+        LazyRow(
+            horizontalArrangement =
+                Arrangement.spacedBy(8.dp)
+        ) {
+
+            item {
+
+                FilterChip(
+                    selected = ambitoFiltro == null,
+                    onClick = {
+                        ambitoFiltro = null
+                    },
+                    label = {
+                        Text("Todos")
+                    }
+                )
+            }
+
+            items(Ambito.entries) { ambito ->
+
+                FilterChip(
+                    selected = ambitoFiltro == ambito,
+                    onClick = {
+                        ambitoFiltro = ambito
+                    },
+                    label = {
+                        Text(ambito.nombre)
+                    }
                 )
             }
         }
 
-        Spacer(
-            modifier =
-                Modifier.height(12.dp)
-        )
+        Spacer(Modifier.height(12.dp))
 
-        AnimatedVisibility(
-            visible =
-                adminViewModel
-                    .mensaje
-                    .isNotEmpty() &&
-                        errorNuevoRegistro
-                            .isEmpty() &&
-                        errorEditarRegistro
-                            .isEmpty(),
+        if (adminViewModel.mensaje.isNotEmpty()) {
 
-            enter =
-                fadeIn() +
-                        slideInVertically(
-                            initialOffsetY = {
-                                it / 2
-                            }
-                        ),
+            Text(
+                text = adminViewModel.mensaje,
+                color = MaterialTheme.colorScheme.primary
+            )
 
-            exit =
-                fadeOut() +
-                        slideOutVertically(
-                            targetOffsetY = {
-                                it / 2
-                            }
-                        )
-        ) {
-
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        bottom = 8.dp
-                    )
-            ) {
-
-                Text(
-                    text =
-                        adminViewModel
-                            .mensaje,
-                    color =
-                        MaterialTheme
-                            .colorScheme
-                            .primary,
-                    modifier =
-                        Modifier.padding(
-                            12.dp
-                        )
-                )
-            }
+            Spacer(Modifier.height(8.dp))
         }
 
         Text(
-            text =
-                "Registros guardados: ${registros.size}",
-            fontWeight =
-                FontWeight.Bold
+            text = "Registros mostrados: ${registrosFiltrados.size}",
+            fontWeight = FontWeight.Bold
         )
 
-        Spacer(
-            modifier =
-                Modifier.height(6.dp)
-        )
+        Spacer(Modifier.height(8.dp))
 
         LazyColumn {
 
-            if (
-                registros.isEmpty()
-            ) {
+            if (registrosFiltrados.isEmpty()) {
 
                 item {
 
                     Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                vertical =
-                                    6.dp
-                            )
+                        modifier = Modifier.fillMaxWidth()
                     ) {
 
                         Text(
-                            text =
-                                "No hay registros guardados",
-                            modifier =
-                                Modifier.padding(
-                                    16.dp
-                                )
+                            text = "No hay registros para este filtro.",
+                            modifier = Modifier.padding(16.dp)
                         )
                     }
                 }
             }
 
             items(
-                items = registros,
+                items = registrosFiltrados,
                 key = {
                     it.idRegistro
                 }
             ) { registro ->
 
                 RegistroCard(
-                    registro =
-                        registro,
-
-                    onEditar = {
-
-                        registroEditar =
-                            it
-
-                        nuevoEstado =
-                            it.estadoSincronizacion
-
-                        errorEditarRegistro =
-                            ""
-                    },
-
+                    registro = registro,
+                    onVerDetalle = onVerDetalle,
                     onEliminar = {
-
-                        registroEliminar =
-                            it
+                        registroEliminar = it
                     }
                 )
             }
         }
     }
 
-    if (
-        mostrarNuevoRegistro
-    ) {
+    val registroAEliminar = registroEliminar
 
-        AlertDialog(
-            onDismissRequest = {
-
-                mostrarNuevoRegistro =
-                    false
-
-                errorNuevoRegistro =
-                    ""
-            },
-
-            title = {
-
-                Text(
-                    text =
-                        "Nuevo registro"
-                )
-            },
-
-            text = {
-
-                Column {
-
-                    OutlinedTextField(
-                        value =
-                            idUsuario,
-
-                        onValueChange = {
-                            idUsuario =
-                                it
-                        },
-
-                        label = {
-
-                            Text(
-                                text =
-                                    "ID Usuario"
-                            )
-                        },
-
-                        keyboardOptions =
-                            KeyboardOptions(
-                                keyboardType =
-                                    KeyboardType
-                                        .Number
-                            ),
-
-                        singleLine =
-                            true
-                    )
-
-                    Spacer(
-                        modifier =
-                            Modifier.height(
-                                8.dp
-                            )
-                    )
-
-                    SelectorAmbito(
-                        ambitoSeleccionado =
-                            ambitoSeleccionado,
-
-                        onAmbitoSeleccionado = {
-
-                            ambitoSeleccionado =
-                                it
-                        }
-                    )
-
-                    Spacer(
-                        modifier =
-                            Modifier.height(
-                                8.dp
-                            )
-                    )
-
-                    OutlinedTextField(
-                        value =
-                            fechaHora,
-
-                        onValueChange = {
-                                nuevoValor ->
-
-                            val textoFormateado =
-                                formatearFechaHora(
-                                    nuevoValor.text
-                                )
-
-                            fechaHora =
-                                TextFieldValue(
-                                    text =
-                                        textoFormateado,
-
-                                    selection =
-                                        TextRange(
-                                            textoFormateado
-                                                .length
-                                        )
-                                )
-                        },
-
-                        label = {
-
-                            Text(
-                                text =
-                                    "Fecha y hora"
-                            )
-                        },
-
-                        placeholder = {
-
-                            Text(
-                                text =
-                                    "02/12/2026 14:30"
-                            )
-                        },
-
-                        supportingText = {
-
-                            Text(
-                                text =
-                                    "Escriba solo los números"
-                            )
-                        },
-
-                        keyboardOptions =
-                            KeyboardOptions(
-                                keyboardType =
-                                    KeyboardType
-                                        .Number
-                            ),
-
-                        singleLine =
-                            true
-                    )
-
-                    Spacer(
-                        modifier =
-                            Modifier.height(
-                                8.dp
-                            )
-                    )
-
-                    SelectorEstado(
-                        estadoSeleccionado =
-                            estadoRegistro,
-
-                        onEstadoSeleccionado = {
-
-                            estadoRegistro =
-                                it
-                        }
-                    )
-
-                    if (
-                        errorNuevoRegistro
-                            .isNotEmpty()
-                    ) {
-
-                        Spacer(
-                            modifier =
-                                Modifier.height(
-                                    8.dp
-                                )
-                        )
-
-                        Text(
-                            text =
-                                errorNuevoRegistro,
-                            color =
-                                MaterialTheme
-                                    .colorScheme
-                                    .error
-                        )
-                    }
-                }
-            },
-
-            confirmButton = {
-
-                TextButton(
-                    onClick = {
-
-                        val creado =
-                            adminViewModel
-                                .crearRegistro(
-                                    idUsuario,
-
-                                    ambitoSeleccionado
-                                        ?.id
-                                        ?.toString()
-                                        ?: "",
-
-                                    fechaHora.text,
-
-                                    estadoRegistro
-                                )
-
-                        if (
-                            creado
-                        ) {
-
-                            idUsuario =
-                                ""
-
-                            ambitoSeleccionado =
-                                null
-
-                            fechaHora =
-                                TextFieldValue(
-                                    ""
-                                )
-
-                            estadoRegistro =
-                                ""
-
-                            errorNuevoRegistro =
-                                ""
-
-                            mostrarNuevoRegistro =
-                                false
-
-                        } else {
-
-                            errorNuevoRegistro =
-                                adminViewModel
-                                    .mensaje
-
-                            adminViewModel
-                                .limpiarMensaje()
-                        }
-                    }
-                ) {
-
-                    Text(
-                        text =
-                            "Guardar"
-                    )
-                }
-            },
-
-            dismissButton = {
-
-                TextButton(
-                    onClick = {
-
-                        mostrarNuevoRegistro =
-                            false
-
-                        errorNuevoRegistro =
-                            ""
-                    }
-                ) {
-
-                    Text(
-                        text =
-                            "Cancelar"
-                    )
-                }
-            }
-        )
-    }
-
-    if (
-        registroEditar != null
-    ) {
-
-        AlertDialog(
-            onDismissRequest = {
-
-                registroEditar =
-                    null
-
-                errorEditarRegistro =
-                    ""
-            },
-
-            title = {
-
-                Text(
-                    text =
-                        "Editar registro"
-                )
-            },
-
-            text = {
-
-                Column {
-
-                    Text(
-                        text =
-                            "Seleccione el nuevo estado del registro."
-                    )
-
-                    Spacer(
-                        modifier =
-                            Modifier.height(
-                                8.dp
-                            )
-                    )
-
-                    SelectorEstado(
-                        estadoSeleccionado =
-                            nuevoEstado,
-
-                        onEstadoSeleccionado = {
-
-                            nuevoEstado =
-                                it
-                        }
-                    )
-
-                    if (
-                        errorEditarRegistro
-                            .isNotEmpty()
-                    ) {
-
-                        Spacer(
-                            modifier =
-                                Modifier.height(
-                                    8.dp
-                                )
-                        )
-
-                        Text(
-                            text =
-                                errorEditarRegistro,
-                            color =
-                                MaterialTheme
-                                    .colorScheme
-                                    .error
-                        )
-                    }
-                }
-            },
-
-            confirmButton = {
-
-                TextButton(
-                    onClick = {
-
-                        val registro =
-                            registroEditar
-
-                        if (
-                            registro != null
-                        ) {
-
-                            val modificado =
-                                adminViewModel
-                                    .modificarRegistro(
-                                        registro,
-                                        nuevoEstado
-                                    )
-
-                            if (
-                                modificado
-                            ) {
-
-                                errorEditarRegistro =
-                                    ""
-
-                                registroEditar =
-                                    null
-
-                            } else {
-
-                                errorEditarRegistro =
-                                    adminViewModel
-                                        .mensaje
-
-                                adminViewModel
-                                    .limpiarMensaje()
-                            }
-                        }
-                    }
-                ) {
-
-                    Text(
-                        text =
-                            "Guardar"
-                    )
-                }
-            },
-
-            dismissButton = {
-
-                TextButton(
-                    onClick = {
-
-                        registroEditar =
-                            null
-
-                        errorEditarRegistro =
-                            ""
-                    }
-                ) {
-
-                    Text(
-                        text =
-                            "Cancelar"
-                    )
-                }
-            }
-        )
-    }
-
-    val registroAEliminar =
-        registroEliminar
-
-    if (
-        registroAEliminar != null
-    ) {
+    if (registroAEliminar != null) {
 
         ConfirmarEliminacionDialog(
-            registro =
-                registroAEliminar,
+            registro = registroAEliminar,
 
             onConfirmar = {
 
-                adminViewModel
-                    .eliminarRegistro(
-                        registroAEliminar
-                    )
+                adminViewModel.eliminarRegistro(
+                    registroAEliminar
+                )
 
-                registroEliminar =
-                    null
+                registroEliminar = null
             },
 
             onCancelar = {
 
-                registroEliminar =
-                    null
+                registroEliminar = null
             }
         )
     }
