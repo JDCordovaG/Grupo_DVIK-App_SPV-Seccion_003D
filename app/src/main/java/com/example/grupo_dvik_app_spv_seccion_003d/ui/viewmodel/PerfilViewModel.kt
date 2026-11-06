@@ -19,6 +19,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import com.example.grupo_dvik_app_spv_seccion_003d.data.database.MIGRACION_2_3
 
 class PerfilViewModel(
     application: Application
@@ -30,7 +31,7 @@ class PerfilViewModel(
             AppDatabase::class.java,
             "mente_en_equilibrio.db"
         )
-            .addMigrations(MIGRACION_1_2)
+            .addMigrations(MIGRACION_1_2, MIGRACION_2_3)
             .build()
 
     private val repository =

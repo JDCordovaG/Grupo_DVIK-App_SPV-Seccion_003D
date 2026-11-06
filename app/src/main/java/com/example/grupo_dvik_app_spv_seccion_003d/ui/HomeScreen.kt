@@ -1,4 +1,3 @@
-
 package com.example.grupo_dvik_app_spv_seccion_003d.ui
 
 import androidx.activity.compose.BackHandler
@@ -15,6 +14,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -34,6 +34,7 @@ fun HomeScreen(
     nombreUsuario: String,
     onMiPerfil: () -> Unit,
     onMisRegistros: () -> Unit,
+    onNuevoRegistro: () -> Unit,
     onCerrarSesion: () -> Unit
 ) {
 
@@ -81,8 +82,7 @@ fun HomeScreen(
         Text(
             text = "Tu espacio personal de autorregistro",
             fontSize = 15.sp,
-            color =
-                MaterialTheme.colorScheme.onSurfaceVariant,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
 
@@ -110,8 +110,7 @@ fun HomeScreen(
 
                 Text(
                     text = "Consulta los datos de tu cuenta y cambia tu fotografía.",
-                    color =
-                        MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(
@@ -152,8 +151,7 @@ fun HomeScreen(
 
                 Text(
                     text = "Consulta, crea y administra tus registros personales.",
-                    color =
-                        MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(
@@ -161,6 +159,18 @@ fun HomeScreen(
                 )
 
                 Button(
+                    onClick = onNuevoRegistro,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+
+                    Text("Nuevo registro")
+                }
+
+                Spacer(
+                    modifier = Modifier.height(8.dp)
+                )
+
+                OutlinedButton(
                     onClick = onMisRegistros,
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -190,8 +200,7 @@ fun HomeScreen(
         Text(
             text = "Esta aplicación utiliza datos ficticios de prueba. No reemplaza apoyo profesional.",
             fontSize = 12.sp,
-            color =
-                MaterialTheme.colorScheme.onSurfaceVariant,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
     }
@@ -204,12 +213,10 @@ fun HomeScreen(
             },
 
             title = {
-
                 Text("¿Cerrar sesión?")
             },
 
             text = {
-
                 Text(
                     "¿Estás seguro de que deseas cerrar tu sesión?"
                 )
@@ -221,7 +228,6 @@ fun HomeScreen(
                     onClick = {
 
                         mostrarConfirmacion = false
-
                         onCerrarSesion()
                     }
                 ) {

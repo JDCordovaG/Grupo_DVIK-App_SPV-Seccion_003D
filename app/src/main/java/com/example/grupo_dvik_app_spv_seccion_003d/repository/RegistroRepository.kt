@@ -7,6 +7,7 @@ import com.example.grupo_dvik_app_spv_seccion_003d.data.database.AppDatabase
 import com.example.grupo_dvik_app_spv_seccion_003d.data.database.MIGRACION_1_2
 import com.example.grupo_dvik_app_spv_seccion_003d.data.entity.RegistroEntity
 import kotlinx.coroutines.flow.Flow
+import com.example.grupo_dvik_app_spv_seccion_003d.data.database.MIGRACION_2_3
 
 class RegistroRepository(
     context: Context
@@ -18,7 +19,7 @@ class RegistroRepository(
             AppDatabase::class.java,
             "mente_en_equilibrio.db"
         )
-            .addMigrations(MIGRACION_1_2)
+            .addMigrations(MIGRACION_1_2, MIGRACION_2_3)
             .build()
 
     private val dao =

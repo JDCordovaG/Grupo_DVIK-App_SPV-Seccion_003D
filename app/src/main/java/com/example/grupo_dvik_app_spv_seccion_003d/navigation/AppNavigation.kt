@@ -1,4 +1,3 @@
-
 package com.example.grupo_dvik_app_spv_seccion_003d.navigation
 
 import androidx.compose.runtime.Composable
@@ -12,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.AdminScreen
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.HomeScreen
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.LoginScreen
+import com.example.grupo_dvik_app_spv_seccion_003d.ui.NuevoRegistroScreen
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.PerfilScreen
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.RegistroUsuarioScreen
 
@@ -74,13 +74,15 @@ fun AppNavigation() {
                 nombreUsuario = nombreUsuario,
 
                 onMiPerfil = {
-
                     navController.navigate("perfil")
                 },
 
                 onMisRegistros = {
-
                     navController.navigate("admin")
+                },
+
+                onNuevoRegistro = {
+                    navController.navigate("nuevo_registro")
                 },
 
                 onCerrarSesion = {
@@ -100,6 +102,24 @@ fun AppNavigation() {
             )
         }
 
+        composable("nuevo_registro") {
+
+            NuevoRegistroScreen(
+                idUsuario = idUsuarioActual,
+
+                onVolver = {
+                    navController.popBackStack()
+                },
+
+                onVerHistorial = {
+
+                    navController.popBackStack()
+
+                    navController.navigate("admin")
+                }
+            )
+        }
+
         composable("perfil") {
 
             PerfilScreen(
@@ -107,7 +127,6 @@ fun AppNavigation() {
                 idUsuario = idUsuarioActual,
 
                 onVolver = {
-
                     navController.popBackStack()
                 }
             )
@@ -120,7 +139,6 @@ fun AppNavigation() {
                 idUsuario = idUsuarioActual,
 
                 onVolver = {
-
                     navController.popBackStack()
                 }
             )

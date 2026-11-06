@@ -14,6 +14,7 @@ import com.example.grupo_dvik_app_spv_seccion_003d.data.entity.UsuarioEntity
 import com.example.grupo_dvik_app_spv_seccion_003d.repository.UsuarioRepository
 import com.example.grupo_dvik_app_spv_seccion_003d.validation.Validaciones
 import kotlinx.coroutines.launch
+import com.example.grupo_dvik_app_spv_seccion_003d.data.database.MIGRACION_2_3
 
 class LoginViewModel(
     application: Application
@@ -28,7 +29,7 @@ class LoginViewModel(
             AppDatabase::class.java,
             "mente_en_equilibrio.db"
         )
-            .addMigrations(MIGRACION_1_2)
+            .addMigrations(MIGRACION_1_2, MIGRACION_2_3)
             .build()
 
     private val repository =
