@@ -3,6 +3,7 @@ package com.example.grupo_dvik_app_spv_seccion_003d.ui
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +19,8 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,17 +30,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.example.grupo_dvik_app_spv_seccion_003d.model.Ambito
+import com.example.grupo_dvik_app_spv_seccion_003d.viewmodel.InicioResumenViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun HomeScreen(
     nombreUsuario: String,
+    idUsuario: Int,
     onMiPerfil: () -> Unit,
     onMisRegistros: () -> Unit,
     onNuevoRegistro: () -> Unit,
     onCentroInformacion: () -> Unit,
-    onCerrarSesion: () -> Unit
+    onCerrarSesion: () -> Unit,
+    inicioViewModel: InicioResumenViewModel = viewModel()
 ) {
+
+    val registros by inicioViewModel.registros.collectAsState()
+
+    LaunchedEffect(idUsuario) {
+        inicioViewModel.cargarRegistros(idUsuario)
+    }
+
+    val registrosUsuario = registros.filter {
+        it.idUsuario == idUsuario
+    }
 
     var mostrarConfirmacion by remember {
         mutableStateOf(false)
@@ -53,94 +70,115 @@ fun HomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(24.dp),
+            .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
 
         Text(
             text = "Mente en Equilibrio",
-            fontSize = 28.sp,
+            style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
+            textAlign = TextAlign.Center
         )
-
-        Spacer(Modifier.height(16.dp))
 
         Text(
             text = "¡Bienvenido, $nombreUsuario!",
-            fontSize = 20.sp,
+            style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )
 
-        Spacer(Modifier.height(8.dp))
-
         Text(
             text = "Tu espacio personal de autorregistro",
-            fontSize = 15.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
 
-        Spacer(Modifier.height(24.dp))
+        // Resumen de registros
 
         Card(
             modifier = Modifier.fillMaxWidth()
         ) {
 
             Column(
-                modifier = Modifier.padding(20.dp)
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
 
                 Text(
-                    text = "Mi perfil",
-                    fontSize = 20.sp,
+                    text = "Mi resumen",
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
 
-                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = "${registrosUsuario.size}",
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
 
                 Text(
-                    text = "Consulta los datos de tu cuenta y cambia tu fotografía.",
+                    text = "Registros guardados",
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(4.dp))
 
-                Button(
-                    onClick = onMiPerfil,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Ver mi perfil")
+                Ambito.entries.forEach { ambito ->
+
+                    val cantidad = registrosUsuario.count {
+                        it.idAmbito == ambito.id
+                    }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement =
+                            Arrangement.SpaceBetween
+                    ) {
+
+                        Text(ambito.nombre)
+
+                        Text(
+                            text = "$cantidad",
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
+                if (registrosUsuario.isEmpty()) {
+
+                    Text(
+                        text = "Todavía no tienes registros. Puedes crear el primero.",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }
 
-        Spacer(Modifier.height(16.dp))
+        // Acceso a registros
 
         Card(
             modifier = Modifier.fillMaxWidth()
         ) {
 
             Column(
-                modifier = Modifier.padding(20.dp)
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
 
                 Text(
                     text = "Mis registros",
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
 
-                Spacer(Modifier.height(8.dp))
-
                 Text(
-                    text = "Consulta, crea y administra tus registros personales.",
+                    text = "Registra tus experiencias y consulta tu historial personal.",
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-
-                Spacer(Modifier.height(16.dp))
 
                 Button(
                     onClick = onNuevoRegistro,
@@ -149,41 +187,36 @@ fun HomeScreen(
                     Text("Nuevo registro")
                 }
 
-                Spacer(Modifier.height(8.dp))
-
                 OutlinedButton(
                     onClick = onMisRegistros,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Ver mis registros")
+                    Text("Ver historial")
                 }
             }
         }
 
-        Spacer(Modifier.height(16.dp))
+        // Centro de informacion
 
         Card(
             modifier = Modifier.fillMaxWidth()
         ) {
 
             Column(
-                modifier = Modifier.padding(20.dp)
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
 
                 Text(
                     text = "Centro de Información",
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
 
-                Spacer(Modifier.height(8.dp))
-
                 Text(
-                    text = "Conoce los cuatro ámbitos, sus características y ejemplos de registros.",
+                    text = "Conoce los cuatro ámbitos, sus características y ejemplos.",
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-
-                Spacer(Modifier.height(16.dp))
 
                 Button(
                     onClick = onCentroInformacion,
@@ -194,7 +227,36 @@ fun HomeScreen(
             }
         }
 
-        Spacer(Modifier.height(20.dp))
+        // Perfil
+
+        Card(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+
+            Column(
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+
+                Text(
+                    text = "Mi perfil",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Text(
+                    text = "Consulta tu cuenta y fotografía personal.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                OutlinedButton(
+                    onClick = onMiPerfil,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Ver mi perfil")
+                }
+            }
+        }
 
         TextButton(
             onClick = {
@@ -204,11 +266,9 @@ fun HomeScreen(
             Text("Cerrar sesión")
         }
 
-        Spacer(Modifier.height(16.dp))
-
         Text(
-            text = "Esta aplicación utiliza datos ficticios de prueba. No reemplaza apoyo profesional.",
-            fontSize = 12.sp,
+            text = "Esta aplicación utiliza datos ficticios de prueba. No realiza diagnósticos ni reemplaza la atención profesional.",
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )

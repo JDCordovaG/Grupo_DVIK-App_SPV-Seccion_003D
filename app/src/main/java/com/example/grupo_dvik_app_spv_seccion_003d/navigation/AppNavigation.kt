@@ -1,13 +1,16 @@
-
 package com.example.grupo_dvik_app_spv_seccion_003d.navigation
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.grupo_dvik_app_spv_seccion_003d.model.Ambito
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.AdminScreen
@@ -18,6 +21,7 @@ import com.example.grupo_dvik_app_spv_seccion_003d.ui.LoginScreen
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.NuevoRegistroScreen
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.PerfilScreen
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.RegistroUsuarioScreen
+import com.example.grupo_dvik_app_spv_seccion_003d.ui.components.BarraInferior
 
 @Composable
 fun AppNavigation() {
@@ -36,176 +40,226 @@ fun AppNavigation() {
         mutableStateOf(Ambito.ANIMO)
     }
 
-    NavHost(
-        navController = navController,
-        startDestination = "login"
-    ) {
+    val entradaActual by
+    navController.currentBackStackEntryAsState()
 
-        composable("login") {
+    val rutaActual =
+        entradaActual?.destination?.route
 
-            LoginScreen(
-                onLoginCorrecto = { id, nombre ->
+    val mostrarBarra =
+        idUsuarioActual > 0 &&
+                rutaActual in listOf(
+            "home",
+            "admin",
+            "centro_informacion",
+            "perfil"
+        )
 
-                    idUsuarioActual = id
-                    nombreUsuario = nombre
+    Scaffold(
+        bottomBar = {
 
-                    navController.navigate("home") {
+            if (mostrarBarra) {
 
-                        popUpTo("login") {
-                            inclusive = true
+                BarraInferior(
+                    rutaActual = rutaActual,
+
+                    onNavegar = { destino ->
+
+                        if (destino != rutaActual) {
+
+                            navController.navigate(destino) {
+
+                                popUpTo("home") {
+                                    inclusive = false
+                                }
+
+                                launchSingleTop = true
+                            }
                         }
                     }
-                },
-
-                onCrearCuenta = {
-
-                    navController.navigate(
-                        "registro_usuario"
-                    )
-                }
-            )
+                )
+            }
         }
+    ) { paddingInterno ->
 
-        composable("registro_usuario") {
+        NavHost(
+            navController = navController,
+            startDestination = "login",
+            modifier = Modifier.padding(paddingInterno)
+        ) {
 
-            RegistroUsuarioScreen(
-                onVolver = {
-                    navController.popBackStack()
-                }
-            )
-        }
+            composable("login") {
 
-        composable("home") {
+                LoginScreen(
+                    onLoginCorrecto = { id, nombre ->
 
-            HomeScreen(
-                nombreUsuario = nombreUsuario,
+                        idUsuarioActual = id
+                        nombreUsuario = nombre
 
-                onMiPerfil = {
-                    navController.navigate("perfil")
-                },
+                        navController.navigate("home") {
 
-                onMisRegistros = {
-                    navController.navigate("admin")
-                },
-
-                onNuevoRegistro = {
-                    ambitoInicial = Ambito.ANIMO
-                    navController.navigate("nuevo_registro")
-                },
-
-                onCentroInformacion = {
-                    navController.navigate("centro_informacion")
-                },
-
-                onCerrarSesion = {
-
-                    nombreUsuario = ""
-                    idUsuarioActual = 0
-                    ambitoInicial = Ambito.ANIMO
-
-                    navController.navigate("login") {
-
-                        popUpTo("home") {
-                            inclusive = true
+                            popUpTo("login") {
+                                inclusive = true
+                            }
                         }
+                    },
 
-                        launchSingleTop = true
+                    onCrearCuenta = {
+
+                        navController.navigate(
+                            "registro_usuario"
+                        )
                     }
-                }
-            )
-        }
+                )
+            }
 
-        composable("centro_informacion") {
+            composable("registro_usuario") {
 
-            CentroInformacionScreen(
-                onVolver = {
-                    navController.popBackStack()
-                },
+                RegistroUsuarioScreen(
+                    onVolver = {
+                        navController.popBackStack()
+                    }
+                )
+            }
 
-                onRegistrarAmbito = { ambito ->
+            composable("home") {
 
-                    ambitoInicial = ambito
+                HomeScreen(
+                    nombreUsuario = nombreUsuario,
+                    idUsuario = idUsuarioActual,
 
-                    navController.navigate("nuevo_registro")
-                }
-            )
-        }
+                    onMiPerfil = {
+                        navController.navigate("perfil")
+                    },
 
-        composable("nuevo_registro") {
+                    onMisRegistros = {
+                        navController.navigate("admin")
+                    },
 
-            NuevoRegistroScreen(
-                idUsuario = idUsuarioActual,
-                ambitoInicial = ambitoInicial,
+                    onNuevoRegistro = {
 
-                onVolver = {
-                    navController.popBackStack()
-                },
+                        ambitoInicial = Ambito.ANIMO
 
-                onVerHistorial = {
+                        navController.navigate("nuevo_registro")
+                    },
 
-                    navController.navigate("admin") {
+                    onCentroInformacion = {
 
-                        popUpTo("home") {
-                            inclusive = false
+                        navController.navigate("centro_informacion")
+                    },
+
+                    onCerrarSesion = {
+
+                        nombreUsuario = ""
+                        idUsuarioActual = 0
+                        ambitoInicial = Ambito.ANIMO
+
+                        navController.navigate("login") {
+
+                            popUpTo("home") {
+                                inclusive = true
+                            }
+
+                            launchSingleTop = true
                         }
-
-                        launchSingleTop = true
                     }
-                }
-            )
-        }
+                )
+            }
 
-        composable("perfil") {
+            composable("centro_informacion") {
 
-            PerfilScreen(
-                nombreUsuario = nombreUsuario,
-                idUsuario = idUsuarioActual,
+                CentroInformacionScreen(
+                    onVolver = {
+                        navController.popBackStack()
+                    },
 
-                onVolver = {
-                    navController.popBackStack()
-                }
-            )
-        }
+                    onRegistrarAmbito = { ambito ->
 
-        composable("admin") {
+                        ambitoInicial = ambito
 
-            AdminScreen(
-                nombreUsuario = nombreUsuario,
-                idUsuario = idUsuarioActual,
+                        navController.navigate("nuevo_registro")
+                    }
+                )
+            }
 
-                onVolver = {
-                    navController.popBackStack()
-                },
+            composable("nuevo_registro") {
 
-                onNuevoRegistro = {
-                    ambitoInicial = Ambito.ANIMO
-                    navController.navigate("nuevo_registro")
-                },
+                NuevoRegistroScreen(
+                    idUsuario = idUsuarioActual,
+                    ambitoInicial = ambitoInicial,
 
-                onVerDetalle = { idRegistro ->
+                    onVolver = {
+                        navController.popBackStack()
+                    },
 
-                    navController.navigate(
-                        "detalle/$idRegistro"
-                    )
-                }
-            )
-        }
+                    onVerHistorial = {
 
-        composable("detalle/{idRegistro}") { entrada ->
+                        navController.navigate("admin") {
 
-            val idRegistro =
-                entrada.arguments
-                    ?.getString("idRegistro")
-                    ?.toIntOrNull() ?: 0
+                            popUpTo("home") {
+                                inclusive = false
+                            }
 
-            DetalleRegistroScreen(
-                idRegistro = idRegistro,
-                idUsuario = idUsuarioActual,
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            }
 
-                onVolver = {
-                    navController.popBackStack()
-                }
-            )
+            composable("perfil") {
+
+                PerfilScreen(
+                    nombreUsuario = nombreUsuario,
+                    idUsuario = idUsuarioActual,
+
+                    onVolver = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable("admin") {
+
+                AdminScreen(
+                    nombreUsuario = nombreUsuario,
+                    idUsuario = idUsuarioActual,
+
+                    onVolver = {
+                        navController.popBackStack()
+                    },
+
+                    onNuevoRegistro = {
+
+                        ambitoInicial = Ambito.ANIMO
+
+                        navController.navigate("nuevo_registro")
+                    },
+
+                    onVerDetalle = { idRegistro ->
+
+                        navController.navigate(
+                            "detalle/$idRegistro"
+                        )
+                    }
+                )
+            }
+
+            composable("detalle/{idRegistro}") { entrada ->
+
+                val idRegistro =
+                    entrada.arguments
+                        ?.getString("idRegistro")
+                        ?.toIntOrNull() ?: 0
+
+                DetalleRegistroScreen(
+                    idRegistro = idRegistro,
+                    idUsuario = idUsuarioActual,
+
+                    onVolver = {
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
     }
 }
