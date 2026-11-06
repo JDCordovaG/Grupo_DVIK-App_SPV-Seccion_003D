@@ -1,13 +1,22 @@
+
 package com.example.grupo_dvik_app_spv_seccion_003d.validation
 
 import java.text.ParsePosition
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
 
 class Validaciones {
 
     fun validarNombre(nombre: String): Boolean {
-        return nombre.isNotBlank()
+
+        if (nombre.isBlank()) {
+            return false
+        }
+
+        return nombre.all {
+            it.isLetterOrDigit()
+        }
     }
 
     fun validarContrasena(contrasena: String): Boolean {
@@ -79,5 +88,31 @@ class Validaciones {
 
         return fecha != null &&
                 posicion.index == fechaHora.length
+    }
+
+    fun validarFechaActualOFutura(
+        fechaHora: String
+    ): Boolean {
+
+        if (!validarFechaHora(fechaHora)) {
+            return false
+        }
+
+        val formato = SimpleDateFormat(
+            "dd/MM/yyyy HH:mm",
+            Locale.getDefault()
+        )
+
+        formato.isLenient = false
+
+        val fecha = formato.parse(fechaHora)
+            ?: return false
+
+        val ahora = Calendar.getInstance()
+
+        ahora.set(Calendar.SECOND, 0)
+        ahora.set(Calendar.MILLISECOND, 0)
+
+        return !fecha.before(ahora.time)
     }
 }
