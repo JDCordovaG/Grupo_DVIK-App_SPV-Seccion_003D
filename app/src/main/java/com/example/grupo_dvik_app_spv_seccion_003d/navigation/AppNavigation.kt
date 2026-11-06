@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.AdminScreen
+import com.example.grupo_dvik_app_spv_seccion_003d.ui.DetalleRegistroScreen
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.HomeScreen
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.LoginScreen
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.NuevoRegistroScreen
@@ -18,8 +19,7 @@ import com.example.grupo_dvik_app_spv_seccion_003d.ui.RegistroUsuarioScreen
 @Composable
 fun AppNavigation() {
 
-    val navController =
-        rememberNavController()
+    val navController = rememberNavController()
 
     var nombreUsuario by remember {
         mutableStateOf("")
@@ -113,9 +113,14 @@ fun AppNavigation() {
 
                 onVerHistorial = {
 
-                    navController.popBackStack()
+                    navController.navigate("admin") {
 
-                    navController.navigate("admin")
+                        popUpTo("home") {
+                            inclusive = false
+                        }
+
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -136,6 +141,35 @@ fun AppNavigation() {
 
             AdminScreen(
                 nombreUsuario = nombreUsuario,
+                idUsuario = idUsuarioActual,
+
+                onVolver = {
+                    navController.popBackStack()
+                },
+
+                onNuevoRegistro = {
+                    navController.navigate("nuevo_registro")
+                },
+
+                onVerDetalle = { idRegistro ->
+
+                    navController.navigate(
+                        "detalle/$idRegistro"
+                    )
+                }
+            )
+        }
+
+        composable("detalle/{idRegistro}") {
+                entrada ->
+
+            val idRegistro =
+                entrada.arguments
+                    ?.getString("idRegistro")
+                    ?.toIntOrNull() ?: 0
+
+            DetalleRegistroScreen(
+                idRegistro = idRegistro,
                 idUsuario = idUsuarioActual,
 
                 onVolver = {
