@@ -37,11 +37,12 @@ fun NuevoRegistroScreen(
     idUsuario: Int,
     onVolver: () -> Unit,
     onVerHistorial: () -> Unit,
+    ambitoInicial: Ambito = Ambito.ANIMO,
     nuevoRegistroViewModel: NuevoRegistroViewModel = viewModel()
 ) {
 
-    var ambitoSeleccionado by remember {
-        mutableStateOf(Ambito.ANIMO)
+    var ambitoSeleccionado by remember(ambitoInicial) {
+        mutableStateOf(ambitoInicial)
     }
 
     // Estado de animo

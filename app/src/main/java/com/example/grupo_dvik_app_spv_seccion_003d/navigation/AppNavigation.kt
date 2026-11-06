@@ -1,3 +1,4 @@
+
 package com.example.grupo_dvik_app_spv_seccion_003d.navigation
 
 import androidx.compose.runtime.Composable
@@ -8,7 +9,9 @@ import androidx.compose.runtime.setValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.grupo_dvik_app_spv_seccion_003d.model.Ambito
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.AdminScreen
+import com.example.grupo_dvik_app_spv_seccion_003d.ui.CentroInformacionScreen
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.DetalleRegistroScreen
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.HomeScreen
 import com.example.grupo_dvik_app_spv_seccion_003d.ui.LoginScreen
@@ -27,6 +30,10 @@ fun AppNavigation() {
 
     var idUsuarioActual by remember {
         mutableStateOf(0)
+    }
+
+    var ambitoInicial by remember {
+        mutableStateOf(Ambito.ANIMO)
     }
 
     NavHost(
@@ -82,13 +89,19 @@ fun AppNavigation() {
                 },
 
                 onNuevoRegistro = {
+                    ambitoInicial = Ambito.ANIMO
                     navController.navigate("nuevo_registro")
+                },
+
+                onCentroInformacion = {
+                    navController.navigate("centro_informacion")
                 },
 
                 onCerrarSesion = {
 
                     nombreUsuario = ""
                     idUsuarioActual = 0
+                    ambitoInicial = Ambito.ANIMO
 
                     navController.navigate("login") {
 
@@ -102,10 +115,27 @@ fun AppNavigation() {
             )
         }
 
+        composable("centro_informacion") {
+
+            CentroInformacionScreen(
+                onVolver = {
+                    navController.popBackStack()
+                },
+
+                onRegistrarAmbito = { ambito ->
+
+                    ambitoInicial = ambito
+
+                    navController.navigate("nuevo_registro")
+                }
+            )
+        }
+
         composable("nuevo_registro") {
 
             NuevoRegistroScreen(
                 idUsuario = idUsuarioActual,
+                ambitoInicial = ambitoInicial,
 
                 onVolver = {
                     navController.popBackStack()
@@ -148,6 +178,7 @@ fun AppNavigation() {
                 },
 
                 onNuevoRegistro = {
+                    ambitoInicial = Ambito.ANIMO
                     navController.navigate("nuevo_registro")
                 },
 
@@ -160,8 +191,7 @@ fun AppNavigation() {
             )
         }
 
-        composable("detalle/{idRegistro}") {
-                entrada ->
+        composable("detalle/{idRegistro}") { entrada ->
 
             val idRegistro =
                 entrada.arguments

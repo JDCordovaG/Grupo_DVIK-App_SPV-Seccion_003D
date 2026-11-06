@@ -35,6 +35,7 @@ fun HomeScreen(
     onMiPerfil: () -> Unit,
     onMisRegistros: () -> Unit,
     onNuevoRegistro: () -> Unit,
+    onCentroInformacion: () -> Unit,
     onCerrarSesion: () -> Unit
 ) {
 
@@ -64,9 +65,7 @@ fun HomeScreen(
             color = MaterialTheme.colorScheme.primary
         )
 
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
+        Spacer(Modifier.height(16.dp))
 
         Text(
             text = "¡Bienvenido, $nombreUsuario!",
@@ -75,9 +74,7 @@ fun HomeScreen(
             textAlign = TextAlign.Center
         )
 
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
+        Spacer(Modifier.height(8.dp))
 
         Text(
             text = "Tu espacio personal de autorregistro",
@@ -86,9 +83,7 @@ fun HomeScreen(
             textAlign = TextAlign.Center
         )
 
-        Spacer(
-            modifier = Modifier.height(24.dp)
-        )
+        Spacer(Modifier.height(24.dp))
 
         Card(
             modifier = Modifier.fillMaxWidth()
@@ -104,32 +99,25 @@ fun HomeScreen(
                     fontWeight = FontWeight.Bold
                 )
 
-                Spacer(
-                    modifier = Modifier.height(8.dp)
-                )
+                Spacer(Modifier.height(8.dp))
 
                 Text(
                     text = "Consulta los datos de tu cuenta y cambia tu fotografía.",
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                Spacer(
-                    modifier = Modifier.height(16.dp)
-                )
+                Spacer(Modifier.height(16.dp))
 
                 Button(
                     onClick = onMiPerfil,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-
                     Text("Ver mi perfil")
                 }
             }
         }
 
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
+        Spacer(Modifier.height(16.dp))
 
         Card(
             modifier = Modifier.fillMaxWidth()
@@ -145,57 +133,78 @@ fun HomeScreen(
                     fontWeight = FontWeight.Bold
                 )
 
-                Spacer(
-                    modifier = Modifier.height(8.dp)
-                )
+                Spacer(Modifier.height(8.dp))
 
                 Text(
                     text = "Consulta, crea y administra tus registros personales.",
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                Spacer(
-                    modifier = Modifier.height(16.dp)
-                )
+                Spacer(Modifier.height(16.dp))
 
                 Button(
                     onClick = onNuevoRegistro,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-
                     Text("Nuevo registro")
                 }
 
-                Spacer(
-                    modifier = Modifier.height(8.dp)
-                )
+                Spacer(Modifier.height(8.dp))
 
                 OutlinedButton(
                     onClick = onMisRegistros,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-
                     Text("Ver mis registros")
                 }
             }
         }
 
-        Spacer(
-            modifier = Modifier.height(20.dp)
-        )
+        Spacer(Modifier.height(16.dp))
+
+        Card(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+
+            Column(
+                modifier = Modifier.padding(20.dp)
+            ) {
+
+                Text(
+                    text = "Centro de Información",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                Text(
+                    text = "Conoce los cuatro ámbitos, sus características y ejemplos de registros.",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                Button(
+                    onClick = onCentroInformacion,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Explorar información")
+                }
+            }
+        }
+
+        Spacer(Modifier.height(20.dp))
 
         TextButton(
             onClick = {
                 mostrarConfirmacion = true
             }
         ) {
-
             Text("Cerrar sesión")
         }
 
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
+        Spacer(Modifier.height(16.dp))
 
         Text(
             text = "Esta aplicación utiliza datos ficticios de prueba. No reemplaza apoyo profesional.",
@@ -226,12 +235,10 @@ fun HomeScreen(
 
                 TextButton(
                     onClick = {
-
                         mostrarConfirmacion = false
                         onCerrarSesion()
                     }
                 ) {
-
                     Text("Sí, cerrar sesión")
                 }
             },
@@ -243,7 +250,6 @@ fun HomeScreen(
                         mostrarConfirmacion = false
                     }
                 ) {
-
                     Text("Cancelar")
                 }
             }
